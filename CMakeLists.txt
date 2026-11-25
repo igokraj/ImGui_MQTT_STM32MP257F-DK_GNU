@@ -18,6 +18,7 @@ add_executable(app
     ${IMGUI_BACKENDS}/imgui_impl_glfw.cpp
     ${IMGUI_BACKENDS}/imgui_impl_opengl3.cpp
     src/calculator.cpp
+    src/clock.cpp
 )
 target_include_directories(app PRIVATE 
 
