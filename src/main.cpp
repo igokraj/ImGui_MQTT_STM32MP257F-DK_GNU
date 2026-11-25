@@ -32,20 +32,20 @@
 #include "../libs/emscripten/emscripten_mainloop_stub.h"
 #endif
 
-static void glfw_error_callback(int error, const char* description)
+static void glfw_error_callback(int error, const char *description)
 {
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
 
 // Main code
-int main(int, char**)
+int main(int, char **)
 {
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit())
         return 1;
 
     // Select GL version + let the backend select a GLSL version
-    const char* glsl_version = nullptr;
+    const char *glsl_version = nullptr;
 #if defined(IMGUI_IMPL_OPENGL_ES2)
     // GL ES 2.0 + GLSL 100 (WebGL 1.0)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
@@ -60,19 +60,19 @@ int main(int, char**)
     // GL 3.2 + generally GLSL 150
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // 3.2+ only
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);           // Required on Mac
 #else
     // GL 3.0 + generally GLSL 130
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
-    //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
+    // glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
+    // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
 #endif
 
     // Create window with graphics context
     float main_scale = ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor()); // Valid on GLFW 3.3+ only
-    GLFWwindow* window = glfwCreateWindow((int)(1280 * main_scale), (int)(800 * main_scale), "Dear ImGui GLFW+OpenGL3 example", nullptr, nullptr);
+    GLFWwindow *window = glfwCreateWindow((int)(1280 * main_scale), (int)(800 * main_scale), "Dear ImGui GLFW+OpenGL3 example", nullptr, nullptr);
     if (window == nullptr)
         return 1;
     glfwMakeContextCurrent(window);
@@ -81,21 +81,22 @@ int main(int, char**)
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    ImGuiIO &io = ImGui::GetIO();
+    (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
 
     // Setup Dear ImGui style
-    ImGuiStyle& style = ImGui::GetStyle();
+    ImGuiStyle &style = ImGui::GetStyle();
     ImGui::StyleColorsDark();
-    //ImGui::StyleColorsLight();
-    //style.FontSizeBase = 16.0f;           // Default to 13.0f when unspecified, which allows crisp legacy font for non-4K screens.
+    // ImGui::StyleColorsLight();
+    // style.FontSizeBase = 16.0f;           // Default to 13.0f when unspecified, which allows crisp legacy font for non-4K screens.
     style.FrameRounding = 3.0f;
     style.GrabRounding = 3.0f;
 
     // Setup scaling
-    style.ScaleAllSizes(main_scale);        // Bake a fixed style scale. (until we have a solution for dynamic style scaling, changing this requires resetting Style + calling this again)
-    style.FontScaleDpi = main_scale;        // Set initial font scale. (in docking branch: using io.ConfigDpiScaleFonts=true automatically overrides this for every window depending on the current monitor)
+    style.ScaleAllSizes(main_scale); // Bake a fixed style scale. (until we have a solution for dynamic style scaling, changing this requires resetting Style + calling this again)
+    style.FontScaleDpi = main_scale; // Set initial font scale. (in docking branch: using io.ConfigDpiScaleFonts=true automatically overrides this for every window depending on the current monitor)
 
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -113,14 +114,14 @@ int main(int, char**)
     // - Use '#define IMGUI_ENABLE_FREETYPE' in your imconfig file to use FreeType for higher quality font rendering.
     // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
     // - Our Emscripten build process allows embedding fonts to be accessible at runtime from the "fonts/" folder. See Makefile.emscripten for details.
-    //io.Fonts->AddFontDefaultVector();
-    //io.Fonts->AddFontDefaultBitmap();
-    //io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\segoeui.ttf");
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf");
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf");
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf");
-    //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf");
-    //IM_ASSERT(font != nullptr);
+    // io.Fonts->AddFontDefaultVector();
+    // io.Fonts->AddFontDefaultBitmap();
+    // io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\segoeui.ttf");
+    // io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf");
+    // io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf");
+    // io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf");
+    // ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf");
+    // IM_ASSERT(font != nullptr);
 
     // Our state
     bool show_demo_window = true;
@@ -133,15 +134,14 @@ int main(int, char**)
     bool open = true;
 
     bool op_active = false;
-    const char* oper = "";
+    const char *oper = "";
     std::string input1 = "";
     std::string input2 = "";
     double number1;
     double number2;
     double res = 0;
     bool result_shown = false;
-    // 2) Window - End 
-
+    // 2) Window - End
 
 #ifdef __EMSCRIPTEN__
     // For an Emscripten build we are disabling file-system access, so let's not attempt to do a fopen() of the imgui.ini file.
@@ -169,43 +169,49 @@ int main(int, char**)
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        // ********************** USER CODE START ********************** 
+        // ********************** USER CODE START **********************
 
-        // ********************** 1) Window - Colour ********************** 
+        // ********************** 1) Window - Colour **********************
 
         // First ImVec2 is for the min. size and the second one is for the max size
         ImGui::SetNextWindowSizeConstraints(ImVec2(350, 0), ImVec2(600, 600));
         // Set the position of the window at the start of the app
         ImGui::SetNextWindowPos(ImVec2(50, 50), ImGuiCond_Once);
         ImGui::Begin("Choose your colour!", NULL, ImGuiWindowFlags_AlwaysAutoResize);
-        ImGui::ColorEdit3("Click here", (float*)&clear_color, ImGuiColorEditFlags_NoInputs); // Edit 3 floats representing a color
+        ImGui::ColorEdit3("Click here", (float *)&clear_color, ImGuiColorEditFlags_NoInputs); // Edit 3 floats representing a color
         ImGui::End();
 
-        // ********************** 1) End ********************** 
+        // ********************** 1) End **********************
 
         // ********************** 2) Window - Calculator **********************
 
-        ImGui::SetNextWindowSize(ImVec2(500, 600));
+        ImGui::SetNextWindowSize(ImVec2(600, 600));
 
         // Set the position of the window at the start of the app
         ImGui::SetNextWindowPos(ImVec2(50, 200), ImGuiCond_Once);
         ImGui::Begin("Calculator app", NULL, ImGuiWindowFlags_NoResize);
-    
+
         ImGui::Text("First number is: %s", input1.c_str());
         ImGui::Text("Second number is: %s", input2.c_str());
         ImGui::Text("Result is: %g", res);
 
-        const char* tab[] = { "+", "-", "/", "*" };
+        const char *tab[] = {"+", "-", "/", "*"};
 
-        for (int j = 0; j < 3; j++) {
-            for (int i = 1; i <= 3; i++) {
+        for (int j = 0; j < 3; j++)
+        {
+            for (int i = 1; i <= 3; i++)
+            {
                 int num = j * 3 + i;
-                if (ImGui::Button(std::to_string(num).c_str(), ImVec2(100, 100))) {
-                    if (op_active) {
+                if (ImGui::Button(std::to_string(num).c_str(), ImVec2(100, 100)))
+                {
+                    if (op_active)
+                    {
                         input2 += std::to_string(num);
                     }
-                    else {
-                        if (result_shown) {
+                    else
+                    {
+                        if (result_shown)
+                        {
                             input1 = "";
                             result_shown = false;
                         }
@@ -214,7 +220,8 @@ int main(int, char**)
                 }
                 ImGui::SameLine();
             }
-            if (ImGui::Button(tab[j], ImVec2(100, 100))) {
+            if (ImGui::Button(tab[j], ImVec2(100, 100)))
+            {
                 op_active = true;
                 oper = tab[j];
                 result_shown = false;
@@ -222,12 +229,16 @@ int main(int, char**)
         }
 
         // 4. rząd: 0, C, =, *
-        if (ImGui::Button("0", ImVec2(100, 100))) {
-            if (op_active) {
+        if (ImGui::Button("0", ImVec2(100, 100)))
+        {
+            if (op_active)
+            {
                 input2 += "0";
             }
-            else {
-                if (result_shown) {
+            else
+            {
+                if (result_shown)
+                {
                     input1 = "";
                     result_shown = false;
                 }
@@ -236,7 +247,27 @@ int main(int, char**)
         }
         ImGui::SameLine();
 
-        if (ImGui::Button("C", ImVec2(100, 100))) {
+        if (ImGui::Button(".", ImVec2(100, 100)))
+        {
+            if (!op_active && result_shown)
+            {
+                input1 = "";
+                result_shown = false;
+            }
+            std::string &in = op_active ? input2 : input1;
+            // only one dot is allowed
+            if (in.find('.') == std::string::npos)
+            {
+                if (in.empty())
+                    in = "0"; // "." -> "0."
+                in += ".";
+            }
+        }
+
+        ImGui::SameLine();
+
+        if (ImGui::Button("C", ImVec2(100, 100)))
+        {
             input1 = "";
             input2 = "";
             op_active = false;
@@ -246,11 +277,14 @@ int main(int, char**)
         }
         ImGui::SameLine();
 
-        if (ImGui::Button("=", ImVec2(100, 100))) {
-            if (!input1.empty() && !input2.empty() && oper[0] != '\0') {
+        if (ImGui::Button("=", ImVec2(100, 100)))
+        {
+            if (!input1.empty() && !input2.empty() && oper[0] != '\0')
+            {
                 number1 = std::stod(input1);
                 number2 = std::stod(input2);
-                switch (oper[0]) {
+                switch (oper[0])
+                {
                 case '+':
                     res = number1 + number2;
                     break;
@@ -276,7 +310,8 @@ int main(int, char**)
         }
         ImGui::SameLine();
 
-        if (ImGui::Button(tab[3], ImVec2(100, 100))) {
+        if (ImGui::Button(tab[3], ImVec2(100, 100)))
+        {
             op_active = true;
             oper = tab[3];
             result_shown = false;
@@ -286,8 +321,7 @@ int main(int, char**)
 
         // ********************** 2) Window - End **********************
 
-
-        // ********************** USER CODE END ********************** 
+        // ********************** USER CODE END **********************
 
         // Rendering
         ImGui::Render();
