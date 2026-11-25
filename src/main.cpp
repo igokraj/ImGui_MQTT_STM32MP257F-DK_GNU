@@ -20,6 +20,7 @@
 // User includes
 #include <string>
 #include <calculator.h>
+#include <ctime>
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
 // To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
@@ -178,6 +179,45 @@ int main(int, char **)
         Calculator.draw();
 
         // ********************** 2) Window - End **********************
+
+        // ********************** 3) Window - Clock **********************
+
+
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0)); 
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);  
+
+        std::time_t now = std::time(nullptr);
+        std::tm* t = std::localtime(&now);
+
+        // TIME
+        char time_str[16];
+        std::strftime(time_str, sizeof(time_str), "%H:%M:%S", t);
+
+        // DATE
+        char data[16];
+        std::strftime(data, sizeof(data), "%d.%m.%Y", t);
+
+        // WEEK DAY
+        char day[16];
+        std::strftime(day, sizeof(day), "%A", t);
+
+        // Set the position of the window at the start of the app
+        ImGui::SetNextWindowPos(ImVec2(1000, 50), ImGuiCond_Once);
+        ImGui::Begin("Clock", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize);
+
+        ImGui::PushFont(NULL, 36.0f); 
+        ImGui::Text("%s", time_str);
+        ImGui::Text("%s", data);
+        ImGui::Text("%s", day);
+
+        ImGui::PopFont();
+
+        ImGui::End();
+
+        ImGui::PopStyleVar();
+        ImGui::PopStyleColor();
+
+        // ********************** 3) Window - End **********************
 
         // ********************** USER CODE END **********************
 
