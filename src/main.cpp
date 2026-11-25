@@ -21,6 +21,7 @@
 #include <string>
 #include "calculator.h"
 #include "clock.h"
+#include "mosquitto_client.h"
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
 // To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
@@ -134,6 +135,7 @@ int main(int, char **)
 
     Calculator calc;
     Clock clk;
+    MQTTClient mqtt;
 
 #ifdef __EMSCRIPTEN__
     // For an Emscripten build we are disabling file-system access, so let's not attempt to do a fopen() of the imgui.ini file.
@@ -163,7 +165,7 @@ int main(int, char **)
 
         // ********************** USER CODE START **********************
 
-        // ********************** 1) Window - Colour **********************
+        // ********************** 1) COLOUR - START **********************
 
         // First ImVec2 is for the min. size and the second one is for the max size
         ImGui::SetNextWindowSizeConstraints(ImVec2(350, 0), ImVec2(600, 600));
@@ -173,20 +175,26 @@ int main(int, char **)
         ImGui::ColorEdit3("Click here", (float *)&clear_color, ImGuiColorEditFlags_NoInputs); // Edit 3 floats representing a color
         ImGui::End();
 
-        // ********************** 1) End **********************
+        // ********************** 1) COLOUR - END **********************
 
-        // ********************** 2) Window - Calculator **********************
+        // ********************** 2) CALCULATOR - START **********************
 
         calc.draw();
 
-        // ********************** 2) Window - End **********************
+        // ********************** 2) CALCULATOR - START **********************
 
-        // ********************** 3) Window - Clock **********************
+        // ********************** 3) TIME - START **********************
 
         clk.draw();
   
+        // ********************** 3) TIME - END **********************
 
-        // ********************** 3) Window - End **********************
+        
+        // ********************** 4) MQTT - START **********************
+
+        mqtt.draw();
+  
+        // ********************** 3) MQTT - END **********************
 
         // ********************** USER CODE END **********************
 

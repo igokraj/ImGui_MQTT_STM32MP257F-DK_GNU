@@ -19,12 +19,15 @@ add_executable(app
     ${IMGUI_BACKENDS}/imgui_impl_opengl3.cpp
     src/calculator.cpp
     src/clock.cpp
+    src/mosquitto_client.cpp
 )
 target_include_directories(app PRIVATE 
 
 ${CMAKE_SOURCE_DIR}/include
 ${IMGUI_DIR} 
 ${IMGUI_BACKENDS})
+
+target_link_libraries(app PRIVATE mosquitto)
 
 if(CMAKE_CROSSCOMPILING)
 
