@@ -9,7 +9,7 @@ public:
 MQTTClient();
 ~MQTTClient();
 
-bool publish(const char *topic, const char *message, int qos = 0, bool retain = true);
+bool publish(const char *topic, const char *message, int qos = 0, bool retain = false);
 bool connect(const char* host, int port);
 void poll();    
 void draw();    
@@ -28,6 +28,8 @@ private:
     std::string pub_status;
     std::string sub_status;
     char sub_input[128];
+    bool retain = false;
+    int qos = 0;
 
 
     // Callbacks

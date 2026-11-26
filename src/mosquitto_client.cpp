@@ -141,6 +141,16 @@ void MQTTClient::draw()
     else
         ImGui::Text("Message is too long!");
 
+    // Choose to retain the message on the topic or not
+    ImGui::Checkbox("Retain", &retain);
+    ImGui::SameLine();
+
+    ImGui::RadioButton("QoS 0", &qos, 0); 
+    ImGui::SameLine();
+    ImGui::RadioButton("QoS 1", &qos, 1);
+    ImGui::SameLine(); 
+    ImGui::RadioButton("QoS 2", &qos, 2);
+
     if (ImGui::Button("Send"))
     {
         if (pub_message[0] == '\0' && pub_topic[0] == '\0')
@@ -149,11 +159,13 @@ void MQTTClient::draw()
             pub_status = "Message is empty";
         else if (pub_topic[0] == '\0')
             pub_status = "Topic is empty";
-        else if (publish(pub_topic, pub_message))
+        else if (publish(pub_topic, pub_message, qos, retain))
             pub_status = "Sent";
         else
             pub_status = "Send failed";
     }
+
+    
 
     if (!pub_status.empty())
     {
