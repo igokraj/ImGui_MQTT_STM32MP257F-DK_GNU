@@ -14,7 +14,6 @@ bool connect(const char* host, int port);
 void poll();    
 void draw();    
 
-
 private:
     std::string host = "localhost";
     int port = 1883;
@@ -25,11 +24,14 @@ private:
     std::string last_message;
     char pub_message[256] = "";
     char pub_topic[128] = "";
+    char sub_topic[128] = "home/temperature";
     std::string pub_status;
+    std::string sub_status;
+    char sub_input[128];
 
-    static void on_disconnect(struct mosquitto *mosq, void *obj, int reason_code);
 
     // Callbacks
-    static void on_connect(struct mosquitto *mosq, void *obj, int reason_code);
+    static void on_disconnect(struct mosquitto *mosq, void *obj, int reason_code);
+    static void on_connect(struct mosquitto *mosq,  void *obj, int reason_code);
     static void on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg);
 };

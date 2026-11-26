@@ -5,11 +5,11 @@
 #include <iostream>
 #include <cstring>
 
-#define subscribe_topic "home/temperature"
-
 MQTTClient::MQTTClient()
 {
     mosquitto_lib_init();
+    // Pass 'this' (address of this MQTTClient object) as user data.
+    // libmosquitto stores it and gives it back as 'obj' in every callback.
     mosq = mosquitto_new(nullptr, true, this);
     mosquitto_connect_callback_set(mosq, on_connect);
     mosquitto_message_callback_set(mosq, on_message);
@@ -63,7 +63,7 @@ void MQTTClient::on_connect(struct mosquitto *mosq, void *obj, int reason_code)
     self->connected = (reason_code == 0);
     if (reason_code == 0)
     {
-        mosquitto_subscribe(mosq, nullptr, subscribe_topic, 0);
+        mosquitto_subscribe(mosq, nullptr, self->sub_topic, 0);
     }
 }
 
@@ -89,13 +89,37 @@ void MQTTClient::draw()
     else
         ImGui::TextColored(ImVec4(1, 0, 0, 1), "Disconnected");
 
+    // Display user input->Subscription
+    ImGui::InputText("Topic##sub", sub_input, sizeof(sub_input));
+    ImGui::Text("Subscribed topic: %s", sub_topic);
+
+    if (ImGui::Button("Subscribe"))
+    {
+        if (sub_input[0] == '\0')
+            sub_status = "Subscription topic is empty";
+        else
+        {
+            mosquitto_unsubscribe(mosq, nullptr, sub_topic);
+            snprintf(sub_topic, sizeof(sub_topic), "%s", sub_input);
+            if (mosquitto_subscribe(mosq, nullptr, sub_topic, 0) == MOSQ_ERR_SUCCESS)
+                sub_status = "Topic subscribed!";
+            else
+                sub_status = "Subscribe failed";
+        }
+    }
+    if (!sub_status.empty())
+    {
+        ImGui::SameLine();
+        ImGui::TextUnformatted(sub_status.c_str());
+    }
+
     // Display received messages
     ImGui::Text("Topic: %s", last_topic.c_str());
     ImGui::Text("Message: %s", last_message.c_str());
 
     ImGui::Separator();
 
-    // Display user input
+    // Display user input -> Topic and message
     ImGui::InputText("Topic##pub", pub_topic, sizeof(pub_topic));
     ImGui::InputText("Message##pub", pub_message, sizeof(pub_message));
 
