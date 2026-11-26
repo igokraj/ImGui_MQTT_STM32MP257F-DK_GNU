@@ -84,12 +84,18 @@ void MQTTClient::on_message(struct mosquitto *mosq, void *obj, const struct mosq
 
 void MQTTClient::draw()
 {
+    ImGui::SeparatorText("Status");
+
     if (connected)
         ImGui::TextColored(ImVec4(0, 1, 0, 1), "Connected");
     else
         ImGui::TextColored(ImVec4(1, 0, 0, 1), "Disconnected");
 
-    // Display user input->Subscription
+    // ********************************************************
+
+    ImGui::Spacing();
+    ImGui::SeparatorText("Subscription");
+
     ImGui::InputText("Topic##sub", sub_input, sizeof(sub_input));
     ImGui::Text("Subscribed topic: %s", sub_topic);
 
@@ -113,17 +119,22 @@ void MQTTClient::draw()
         ImGui::TextUnformatted(sub_status.c_str());
     }
 
-    // Display received messages
+    // ********************************************************
+
+    ImGui::Spacing();
+    ImGui::SeparatorText("Received messages");
+
     ImGui::Text("Topic: %s", last_topic.c_str());
     ImGui::Text("Message: %s", last_message.c_str());
 
-    ImGui::Separator();
+    // ********************************************************
 
-    // Display user input -> Topic and message
+    ImGui::Spacing();
+    ImGui::SeparatorText("Publish");
+
     ImGui::InputText("Topic##pub", pub_topic, sizeof(pub_topic));
     ImGui::InputText("Message##pub", pub_message, sizeof(pub_message));
 
-    // Calculate the length of the message and say if it is too long
     int length_left = (int)(sizeof(pub_message) - 1 - strlen(pub_message));
     if (length_left > 0)
         ImGui::Text("Characters left: %d", length_left);
