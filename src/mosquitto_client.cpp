@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <cstring>
+#include <ctime>
 
 MQTTClient::MQTTClient()
 {
@@ -80,6 +81,23 @@ void MQTTClient::on_message(struct mosquitto *mosq, void *obj, const struct mosq
     MQTTClient *self = static_cast<MQTTClient *>(obj);
     self->last_topic = msg->topic;
     self->last_message.assign((const char *)msg->payload, msg->payloadlen);
+
+    // Make a message for the logs
+    std::time_t now = std::time(nullptr);
+    std::tm *t = std::localtime(&now);
+    char time[16];
+    std::strftime(time, sizeof(time), "%H:%M:%S", t);
+
+    Message m;
+    m.time = time;
+    m.topic = msg->topic;
+    m.payload = std::string((const char *)msg->payload, msg->payloadlen);
+    self->history.push_back(m);
+
+    if (self->history.size() > 50)
+    {
+        self->history.pop_front();
+    }
 }
 
 void MQTTClient::draw()
@@ -169,16 +187,15 @@ void MQTTClient::draw()
     else
         ImGui::Text("Message is too long!");
 
-        
-        ImGui::RadioButton("QoS 0##pub", &qos_pub, 0);
-        ImGui::SameLine();
-        ImGui::RadioButton("QoS 1##pub", &qos_pub, 1);
-        ImGui::SameLine();
-        ImGui::RadioButton("QoS 2##pub", &qos_pub, 2);
-        
-        // Choose to retain the message on the topic or not
-        ImGui::SameLine();
-        ImGui::Checkbox("Retain", &retain);
+    ImGui::RadioButton("QoS 0##pub", &qos_pub, 0);
+    ImGui::SameLine();
+    ImGui::RadioButton("QoS 1##pub", &qos_pub, 1);
+    ImGui::SameLine();
+    ImGui::RadioButton("QoS 2##pub", &qos_pub, 2);
+
+    // Choose to retain the message on the topic or not
+    ImGui::SameLine();
+    ImGui::Checkbox("Retain", &retain);
 
     if (ImGui::Button("Send"))
     {
@@ -199,4 +216,24 @@ void MQTTClient::draw()
         ImGui::SameLine();
         ImGui::TextUnformatted(pub_status.c_str());
     }
+}
+
+void MQTTClient::draw_history()
+{
+
+    if (ImGui::Button("Clear"))
+    {
+        history.clear();
+    }
+    ImGui::BeginChild("History", ImVec2(0, 0), ImGuiChildFlags_Borders);
+
+    for (const auto &m : history)
+    {
+        ImGui::Text("[%s] %s : %s", m.time.c_str(), m.topic.c_str(), m.payload.c_str());
+    }
+
+    if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+        ImGui::SetScrollHereY(1.0f);
+
+    ImGui::EndChild();
 }
