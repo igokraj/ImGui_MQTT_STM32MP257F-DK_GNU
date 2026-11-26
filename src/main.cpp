@@ -225,7 +225,20 @@ int main(int, char **)
         mqtt.draw_history();
         ImGui::End();
 
-        // ********************** 4) LOGS - END **********************
+        // ********************** 5) LOGS - END **********************
+
+        // ********************** 6) SUBSCRIBED TOPICS - START **********************
+
+        // First ImVec2 is for the min. size and the second one is for the max size
+        ImGui::SetNextWindowSizeConstraints(ImVec2(600, 0), ImVec2(600, 600));
+        // Set the position of the window at the start of the app
+        ImGui::SetNextWindowPos(ImVec2(300, 200), ImGuiCond_Once);
+        ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
+        ImGui::Begin("SUBSCRIBED TOPICS");
+        mqtt.draw_subscriptions();
+        ImGui::End();
+
+        // ********************** 6) SUBSCRIBED TOPICS - END **********************
 
         // ********************** USER CODE END **********************
 

@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <cstring>
+#include <algorithm>
 #include <ctime>
 
 MQTTClient::MQTTClient()
@@ -64,7 +65,10 @@ void MQTTClient::on_connect(struct mosquitto *mosq, void *obj, int reason_code)
     self->connected = (reason_code == 0);
     if (reason_code == 0)
     {
-        mosquitto_subscribe(mosq, nullptr, self->sub_topic, self->qos_sub);
+
+        // Subscribe to all of the topics in the vector
+        for (const auto &t : self->sub_topics)
+            mosquitto_subscribe(mosq, nullptr, t.c_str(), self->qos_sub);
     }
 }
 
@@ -121,9 +125,8 @@ void MQTTClient::draw()
     ImGui::SeparatorText("Subscription");
 
     ImGui::InputText("Topic##sub", sub_input, sizeof(sub_input));
-    ImGui::Text("Subscribed topic: %s", sub_topic);
 
-    // Change qos imidiately after user sets it
+    // Change QoS immediately after user sets it
     bool qos_changed = false;
     if (ImGui::RadioButton("QoS 0##sub", &qos_sub, 0))
     {
@@ -140,23 +143,30 @@ void MQTTClient::draw()
         qos_changed = true;
     }
 
-    if (qos_changed && connected && sub_topic[0] != '\0')
+    if (qos_changed && connected)
     {
-        mosquitto_subscribe(mosq, nullptr, sub_topic, qos_sub);
+        for (const auto &t : sub_topics)
+            mosquitto_subscribe(mosq, nullptr, t.c_str(), qos_sub);
     }
 
     if (ImGui::Button("Subscribe"))
     {
         if (sub_input[0] == '\0')
             sub_status = "Subscription topic is empty";
+        // "!= end" means that the element is already on the list
+        else if (std::find(sub_topics.begin(), sub_topics.end(), sub_input) != sub_topics.end())
+        {
+            sub_status = "Already subscribed!";
+        }
+        else if (mosquitto_subscribe(mosq, nullptr, sub_input, qos_sub) == MOSQ_ERR_SUCCESS)
+        {
+            sub_topics.push_back(sub_input);
+            sub_input[0] = '\0';
+            sub_status = "Topic subscribed!";
+        }
         else
         {
-            mosquitto_unsubscribe(mosq, nullptr, sub_topic);
-            snprintf(sub_topic, sizeof(sub_topic), "%s", sub_input);
-            if (mosquitto_subscribe(mosq, nullptr, sub_topic, qos_sub) == MOSQ_ERR_SUCCESS)
-                sub_status = "Topic subscribed!";
-            else
-                sub_status = "Subscribe failed";
+            sub_status = "Subscribe failed";
         }
     }
     if (!sub_status.empty())
@@ -218,6 +228,7 @@ void MQTTClient::draw()
     }
 }
 
+// LOG WINDOW
 void MQTTClient::draw_history()
 {
 
@@ -236,4 +247,24 @@ void MQTTClient::draw_history()
         ImGui::SetScrollHereY(1.0f);
 
     ImGui::EndChild();
+}
+
+// WINDOW WITH THE SUBSCRIBED TOPICS
+void MQTTClient::draw_subscriptions()
+{
+    for (size_t i = 0; i < sub_topics.size(); i++)
+    {
+
+        ImGui::PushID((int)i);
+        if (ImGui::Button("X"))
+        {
+            mosquitto_unsubscribe(mosq, nullptr, sub_topics[i].c_str());
+            sub_topics.erase(sub_topics.begin() + i);
+            ImGui::PopID();
+            break;
+        }
+        ImGui::SameLine();
+        ImGui::TextUnformatted(sub_topics[i].c_str());
+        ImGui::PopID();
+    }
 }
