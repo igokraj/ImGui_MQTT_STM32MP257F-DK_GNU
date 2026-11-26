@@ -1,6 +1,7 @@
 #pragma once 
 #include <string>
 #include <mosquitto.h>
+#include <chrono>
 
 class MQTTClient {
 
@@ -15,6 +16,9 @@ void draw();
 
 
 private:
+    std::string host = "localhost";
+    int port = 1883;
+    std::chrono::steady_clock::time_point last_attempt;
     struct mosquitto* mosq = nullptr;
     bool connected = false;
     std::string last_topic;
@@ -23,7 +27,9 @@ private:
     char pub_topic[128] = "";
     std::string pub_status;
 
-    // Callbacs
+    static void on_disconnect(struct mosquitto *mosq, void *obj, int reason_code);
+
+    // Callbacks
     static void on_connect(struct mosquitto *mosq, void *obj, int reason_code);
     static void on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg);
 };

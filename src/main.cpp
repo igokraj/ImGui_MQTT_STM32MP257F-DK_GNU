@@ -136,6 +136,7 @@ int main(int, char **)
     Calculator calc;
     Clock clk;
     MQTTClient mqtt;
+    mqtt.connect("localhost", 1883);
 
 #ifdef __EMSCRIPTEN__
     // For an Emscripten build we are disabling file-system access, so let's not attempt to do a fopen() of the imgui.ini file.
@@ -152,6 +153,7 @@ int main(int, char **)
         // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application, or clear/overwrite your copy of the keyboard data.
         // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
         glfwPollEvents();
+        mqtt.poll();
         if (glfwGetWindowAttrib(window, GLFW_ICONIFIED) != 0)
         {
             ImGui_ImplGlfw_Sleep(10);
@@ -187,7 +189,7 @@ int main(int, char **)
         calc.draw();
         ImGui::End();
 
-        // ********************** 2) CALCULATOR - START **********************
+        // ********************** 2) CALCULATOR - END **********************
 
         // ********************** 3) TIME - START **********************
 
@@ -209,7 +211,7 @@ int main(int, char **)
         mqtt.draw();
         ImGui::End();
 
-        // ********************** 3) MQTT - END **********************
+        // ********************** 4) MQTT - END **********************
 
         // ********************** USER CODE END **********************
 
