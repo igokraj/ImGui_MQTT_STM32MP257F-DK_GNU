@@ -63,7 +63,7 @@ void MQTTClient::on_connect(struct mosquitto *mosq, void *obj, int reason_code)
     self->connected = (reason_code == 0);
     if (reason_code == 0)
     {
-        mosquitto_subscribe(mosq, nullptr, self->sub_topic, 0);
+        mosquitto_subscribe(mosq, nullptr, self->sub_topic, self->qos_sub);
     }
 }
 
@@ -87,9 +87,15 @@ void MQTTClient::draw()
     ImGui::SeparatorText("Status");
 
     if (connected)
+    {
         ImGui::TextColored(ImVec4(0, 1, 0, 1), "Connected");
+        ImGui::Text("Connected to %s:%d", host.c_str(), port);
+    }
     else
+    {
         ImGui::TextColored(ImVec4(1, 0, 0, 1), "Disconnected");
+        ImGui::Text("Trying to connect to %s:%d...", host.c_str(), port);
+    }
 
     // ********************************************************
 
@@ -99,6 +105,28 @@ void MQTTClient::draw()
     ImGui::InputText("Topic##sub", sub_input, sizeof(sub_input));
     ImGui::Text("Subscribed topic: %s", sub_topic);
 
+    // Change qos imidiately after user sets it
+    bool qos_changed = false;
+    if (ImGui::RadioButton("QoS 0##sub", &qos_sub, 0))
+    {
+        qos_changed = true;
+    }
+    ImGui::SameLine();
+    if (ImGui::RadioButton("QoS 1##sub", &qos_sub, 1))
+    {
+        qos_changed = true;
+    }
+    ImGui::SameLine();
+    if (ImGui::RadioButton("QoS 2##sub", &qos_sub, 2))
+    {
+        qos_changed = true;
+    }
+
+    if (qos_changed && connected && sub_topic[0] != '\0')
+    {
+        mosquitto_subscribe(mosq, nullptr, sub_topic, qos_sub);
+    }
+
     if (ImGui::Button("Subscribe"))
     {
         if (sub_input[0] == '\0')
@@ -107,7 +135,7 @@ void MQTTClient::draw()
         {
             mosquitto_unsubscribe(mosq, nullptr, sub_topic);
             snprintf(sub_topic, sizeof(sub_topic), "%s", sub_input);
-            if (mosquitto_subscribe(mosq, nullptr, sub_topic, 0) == MOSQ_ERR_SUCCESS)
+            if (mosquitto_subscribe(mosq, nullptr, sub_topic, qos_sub) == MOSQ_ERR_SUCCESS)
                 sub_status = "Topic subscribed!";
             else
                 sub_status = "Subscribe failed";
@@ -145,11 +173,11 @@ void MQTTClient::draw()
     ImGui::Checkbox("Retain", &retain);
     ImGui::SameLine();
 
-    ImGui::RadioButton("QoS 0", &qos, 0); 
+    ImGui::RadioButton("QoS 0##pub", &qos_pub, 0);
     ImGui::SameLine();
-    ImGui::RadioButton("QoS 1", &qos, 1);
-    ImGui::SameLine(); 
-    ImGui::RadioButton("QoS 2", &qos, 2);
+    ImGui::RadioButton("QoS 1##pub", &qos_pub, 1);
+    ImGui::SameLine();
+    ImGui::RadioButton("QoS 2##pub", &qos_pub, 2);
 
     if (ImGui::Button("Send"))
     {
@@ -159,13 +187,11 @@ void MQTTClient::draw()
             pub_status = "Message is empty";
         else if (pub_topic[0] == '\0')
             pub_status = "Topic is empty";
-        else if (publish(pub_topic, pub_message, qos, retain))
+        else if (publish(pub_topic, pub_message, qos_pub, retain))
             pub_status = "Sent";
         else
             pub_status = "Send failed";
     }
-
-    
 
     if (!pub_status.empty())
     {

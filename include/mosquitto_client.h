@@ -29,7 +29,8 @@ private:
     std::string sub_status;
     char sub_input[128];
     bool retain = false;
-    int qos = 0;
+    int qos_pub = 0;
+    int qos_sub = 0;
 
 
     // Callbacks
