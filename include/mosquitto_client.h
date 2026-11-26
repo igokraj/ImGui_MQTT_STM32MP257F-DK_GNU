@@ -5,13 +5,18 @@
 #include <deque>
 #include <vector>
 
-struct Message {
+struct Message_received {
     std::string time;
     std::string topic;
     std::string payload;
 };
 
-
+struct Message_published {
+    std::string time;
+    std::string topic;
+    std::string payload;
+    bool retain;
+};
 
 class MQTTClient {
 
@@ -23,7 +28,8 @@ bool publish(const char *topic, const char *message, int qos = 0, bool retain = 
 bool connect(const char* host, int port);
 void poll();    
 void draw();
-void draw_history();
+void draw_history_received();
+void draw_history_published();
 void draw_subscriptions();
 
 private:
@@ -40,7 +46,8 @@ private:
     std::string last_message;
 
     // Logs
-    std::deque<Message> history;
+    std::deque<Message_received> history_rec;
+    std::deque<Message_published> history_pub;
 
     // Publish
     char pub_message[256] = "";
@@ -55,8 +62,6 @@ private:
     bool retain = false;
     int qos_sub = 0;
 
-
-    
     // Callbacks
     static void on_disconnect(struct mosquitto *mosq, void *obj, int reason_code);
     static void on_connect(struct mosquitto *mosq,  void *obj, int reason_code);

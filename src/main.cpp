@@ -214,20 +214,33 @@ int main(int, char **)
 
         // ********************** 4) MQTT - END **********************
 
-        // ********************** 5) LOGS - START **********************
+        // ********************** 5) LOGS RECEIVED - START **********************
 
         // First ImVec2 is for the min. size and the second one is for the max size
-        ImGui::SetNextWindowSizeConstraints(ImVec2(300, 0), ImVec2(600, 600));
+        ImGui::SetNextWindowSizeConstraints(ImVec2(400, 0), ImVec2(FLT_MAX, FLT_MAX));
         // Set the position of the window at the start of the app
         ImGui::SetNextWindowPos(ImVec2(500, 500), ImGuiCond_Once);
         ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
-        ImGui::Begin("LOGS");
-        mqtt.draw_history();
+        ImGui::Begin("LOGS RECEIVED", NULL, ImGuiWindowFlags_AlwaysAutoResize);
+        mqtt.draw_history_received();
         ImGui::End();
 
-        // ********************** 5) LOGS - END **********************
+        // ********************** 5) LOGS RECEIVED - END **********************
 
-        // ********************** 6) SUBSCRIBED TOPICS - START **********************
+        // ********************** 6) LOGS PUBLISHED - START **********************
+
+        // First ImVec2 is for the min. size and the second one is for the max size
+        ImGui::SetNextWindowSizeConstraints(ImVec2(400, 0), ImVec2(FLT_MAX, FLT_MAX));
+        // Set the position of the window at the start of the app
+        ImGui::SetNextWindowPos(ImVec2(800, 800), ImGuiCond_Once);
+        ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
+        ImGui::Begin("LOGS PUBLISHED", NULL, ImGuiWindowFlags_AlwaysAutoResize);
+        mqtt.draw_history_published();
+        ImGui::End();
+
+        // ********************** 6) LOGS PUBLISHED - END **********************
+
+        // ********************** 7) SUBSCRIBED TOPICS - START **********************
 
         // First ImVec2 is for the min. size and the second one is for the max size
         ImGui::SetNextWindowSizeConstraints(ImVec2(600, 0), ImVec2(600, 600));
@@ -238,7 +251,7 @@ int main(int, char **)
         mqtt.draw_subscriptions();
         ImGui::End();
 
-        // ********************** 6) SUBSCRIBED TOPICS - END **********************
+        // ********************** 7) SUBSCRIBED TOPICS - END **********************
 
         // ********************** USER CODE END **********************
 

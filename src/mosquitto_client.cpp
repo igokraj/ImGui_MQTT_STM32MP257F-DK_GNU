@@ -92,15 +92,15 @@ void MQTTClient::on_message(struct mosquitto *mosq, void *obj, const struct mosq
     char time[16];
     std::strftime(time, sizeof(time), "%H:%M:%S", t);
 
-    Message m;
+    Message_received m;
     m.time = time;
     m.topic = msg->topic;
     m.payload = std::string((const char *)msg->payload, msg->payloadlen);
-    self->history.push_back(m);
+    self->history_rec.push_back(m);
 
-    if (self->history.size() > 50)
+    if (self->history_rec.size() > 50)
     {
-        self->history.pop_front();
+        self->history_rec.pop_front();
     }
 }
 
@@ -216,7 +216,27 @@ void MQTTClient::draw()
         else if (pub_topic[0] == '\0')
             pub_status = "Topic is empty";
         else if (publish(pub_topic, pub_message, qos_pub, retain))
+        {
+            // Make a message for the logs
+            std::time_t now = std::time(nullptr);
+            std::tm *t = std::localtime(&now);
+            char time[16];
+            std::strftime(time, sizeof(time), "%H:%M:%S", t);
+
+            Message_published m;
+            m.time = time;
+            m.topic = pub_topic;
+            m.payload = pub_message;
+            m.retain = retain;
+            history_pub.push_back(m);
+
+            if (history_pub.size() > 50)
+            {
+                history_pub.pop_front();
+            }
+
             pub_status = "Sent";
+        }
         else
             pub_status = "Send failed";
     }
@@ -229,18 +249,38 @@ void MQTTClient::draw()
 }
 
 // LOG WINDOW
-void MQTTClient::draw_history()
+void MQTTClient::draw_history_received()
 {
 
-    if (ImGui::Button("Clear"))
+    if (ImGui::Button("Clear##rec"))
     {
-        history.clear();
+        history_rec.clear();
     }
-    ImGui::BeginChild("History", ImVec2(0, 0), ImGuiChildFlags_Borders);
+    ImGui::BeginChild("Received messages", ImVec2(0, 250), ImGuiChildFlags_Borders | ImGuiChildFlags_AutoResizeX);
 
-    for (const auto &m : history)
+    for (const auto &m : history_rec)
     {
         ImGui::Text("[%s] %s : %s", m.time.c_str(), m.topic.c_str(), m.payload.c_str());
+    }
+
+    if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+        ImGui::SetScrollHereY(1.0f);
+
+    ImGui::EndChild();
+}
+
+void MQTTClient::draw_history_published()
+{
+
+    if (ImGui::Button("Clear##pub"))
+    {
+        history_pub.clear();
+    }
+    ImGui::BeginChild("Published messages", ImVec2(0, 250), ImGuiChildFlags_Borders | ImGuiChildFlags_AutoResizeX);
+
+    for (const auto &m : history_pub)
+    {
+        ImGui::Text("[%s] %s : %s, Retain: %s", m.time.c_str(), m.topic.c_str(), m.payload.c_str(), m.retain ? "true" : "false");
     }
 
     if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
