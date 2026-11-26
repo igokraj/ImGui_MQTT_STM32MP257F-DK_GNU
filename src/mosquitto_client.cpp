@@ -96,6 +96,7 @@ void MQTTClient::on_message(struct mosquitto *mosq, void *obj, const struct mosq
     m.time = time;
     m.topic = msg->topic;
     m.payload = std::string((const char *)msg->payload, msg->payloadlen);
+    m.qos = msg->qos;
     self->history_rec.push_back(m);
 
     if (self->history_rec.size() > 50)
@@ -228,6 +229,7 @@ void MQTTClient::draw()
             m.topic = pub_topic;
             m.payload = pub_message;
             m.retain = retain;
+            m.qos = qos_pub;
             history_pub.push_back(m);
 
             if (history_pub.size() > 50)
@@ -248,7 +250,7 @@ void MQTTClient::draw()
     }
 }
 
-// LOG WINDOW
+// LOG WINDOW RECEIVED
 void MQTTClient::draw_history_received()
 {
 
@@ -260,7 +262,7 @@ void MQTTClient::draw_history_received()
 
     for (const auto &m : history_rec)
     {
-        ImGui::Text("[%s] %s : %s", m.time.c_str(), m.topic.c_str(), m.payload.c_str());
+        ImGui::Text("[%s] %s : %s, QoS: %d", m.time.c_str(), m.topic.c_str(), m.payload.c_str(), m.qos);
     }
 
     if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
@@ -269,6 +271,7 @@ void MQTTClient::draw_history_received()
     ImGui::EndChild();
 }
 
+// LOG WINDOW PUBLISHED
 void MQTTClient::draw_history_published()
 {
 
@@ -280,7 +283,7 @@ void MQTTClient::draw_history_published()
 
     for (const auto &m : history_pub)
     {
-        ImGui::Text("[%s] %s : %s, Retain: %s", m.time.c_str(), m.topic.c_str(), m.payload.c_str(), m.retain ? "true" : "false");
+        ImGui::Text("[%s] %s : %s, Retain: %s, QoS: %d", m.time.c_str(), m.topic.c_str(), m.payload.c_str(), m.retain ? "true" : "false", m.qos);
     }
 
     if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())

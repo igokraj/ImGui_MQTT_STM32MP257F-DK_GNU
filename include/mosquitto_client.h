@@ -9,6 +9,7 @@ struct Message_received {
     std::string time;
     std::string topic;
     std::string payload;
+    int qos;
 };
 
 struct Message_published {
@@ -16,6 +17,7 @@ struct Message_published {
     std::string topic;
     std::string payload;
     bool retain;
+    int qos;
 };
 
 class MQTTClient {
