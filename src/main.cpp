@@ -21,6 +21,7 @@
 #include <string>
 #include "calculator.h"
 #include "clock.h"
+#include "mosquitto_client.h"
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
 // To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
@@ -95,6 +96,7 @@ int main(int, char **)
     // style.FontSizeBase = 16.0f;           // Default to 13.0f when unspecified, which allows crisp legacy font for non-4K screens.
     style.FrameRounding = 3.0f;
     style.GrabRounding = 3.0f;
+    style.SeparatorTextAlign = ImVec2(0.5f, 0.5f);
 
     // Setup scaling
     style.ScaleAllSizes(main_scale); // Bake a fixed style scale. (until we have a solution for dynamic style scaling, changing this requires resetting Style + calling this again)
@@ -134,6 +136,8 @@ int main(int, char **)
 
     Calculator calc;
     Clock clk;
+    MQTTClient mqtt;
+    mqtt.connect("localhost", 1883);
 
 #ifdef __EMSCRIPTEN__
     // For an Emscripten build we are disabling file-system access, so let's not attempt to do a fopen() of the imgui.ini file.
@@ -150,6 +154,7 @@ int main(int, char **)
         // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application, or clear/overwrite your copy of the keyboard data.
         // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
         glfwPollEvents();
+        mqtt.poll();
         if (glfwGetWindowAttrib(window, GLFW_ICONIFIED) != 0)
         {
             ImGui_ImplGlfw_Sleep(10);
@@ -163,7 +168,7 @@ int main(int, char **)
 
         // ********************** USER CODE START **********************
 
-        // ********************** 1) Window - Colour **********************
+        // ********************** 1) COLOUR - START **********************
 
         // First ImVec2 is for the min. size and the second one is for the max size
         ImGui::SetNextWindowSizeConstraints(ImVec2(350, 0), ImVec2(600, 600));
@@ -173,20 +178,41 @@ int main(int, char **)
         ImGui::ColorEdit3("Click here", (float *)&clear_color, ImGuiColorEditFlags_NoInputs); // Edit 3 floats representing a color
         ImGui::End();
 
-        // ********************** 1) End **********************
+        // ********************** 1) COLOUR - END **********************
 
-        // ********************** 2) Window - Calculator **********************
+        // ********************** 2) CALCULATOR - START **********************
 
+        ImGui::SetNextWindowSize(ImVec2(600, 600));
+        // Set the position of the window at the start of the app
+        ImGui::SetNextWindowPos(ImVec2(50, 200), ImGuiCond_Once);
+        ImGui::SetNextWindowCollapsed(true, ImGuiCond_Once);
+        ImGui::Begin("Calculator app", NULL, ImGuiWindowFlags_NoResize);
         calc.draw();
+        ImGui::End();
 
-        // ********************** 2) Window - End **********************
+        // ********************** 2) CALCULATOR - END **********************
 
-        // ********************** 3) Window - Clock **********************
+        // ********************** 3) TIME - START **********************
 
+        // First ImVec2 is for the min. size and the second one is for the max size
+        ImGui::SetNextWindowSizeConstraints(ImVec2(300, 0), ImVec2(600, 600));
+        // Set the position of the window at the start of the app
+        ImGui::SetNextWindowPos(ImVec2(1000, 50), ImGuiCond_Once);
+        ImGui::Begin("Time/date/day", NULL, ImGuiWindowFlags_AlwaysAutoResize);
         clk.draw();
-  
+        ImGui::End();
 
-        // ********************** 3) Window - End **********************
+        // ********************** 3) TIME - END **********************
+
+        // ********************** 4) MQTT - START **********************
+
+        // Set the position of the window at the start of the app
+        ImGui::SetNextWindowPos(ImVec2(1000, 500), ImGuiCond_Once);
+        ImGui::Begin("MQTT", NULL, ImGuiWindowFlags_AlwaysAutoResize);
+        mqtt.draw();
+        ImGui::End();
+
+        // ********************** 4) MQTT - END **********************
 
         // ********************** USER CODE END **********************
 
