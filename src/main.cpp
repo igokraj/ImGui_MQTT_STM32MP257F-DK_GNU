@@ -179,21 +179,36 @@ int main(int, char **)
 
         // ********************** 2) CALCULATOR - START **********************
 
+        ImGui::SetNextWindowSize(ImVec2(600, 600));
+        // Set the position of the window at the start of the app
+        ImGui::SetNextWindowPos(ImVec2(50, 200), ImGuiCond_Once);
+        ImGui::SetNextWindowCollapsed(true, ImGuiCond_Once);
+        ImGui::Begin("Calculator app", NULL, ImGuiWindowFlags_NoResize);
         calc.draw();
+        ImGui::End();
 
         // ********************** 2) CALCULATOR - START **********************
 
         // ********************** 3) TIME - START **********************
 
+        // First ImVec2 is for the min. size and the second one is for the max size
+        ImGui::SetNextWindowSizeConstraints(ImVec2(300, 0), ImVec2(600, 600));
+        // Set the position of the window at the start of the app
+        ImGui::SetNextWindowPos(ImVec2(1000, 50), ImGuiCond_Once);
+        ImGui::Begin("Time/date/day", NULL, ImGuiWindowFlags_AlwaysAutoResize);
         clk.draw();
-  
+        ImGui::End();
+
         // ********************** 3) TIME - END **********************
 
-        
         // ********************** 4) MQTT - START **********************
 
+        // Set the position of the window at the start of the app
+        ImGui::SetNextWindowPos(ImVec2(1000, 500), ImGuiCond_Once);
+        ImGui::Begin("MQTT", NULL, ImGuiWindowFlags_AlwaysAutoResize);
         mqtt.draw();
-  
+        ImGui::End();
+
         // ********************** 3) MQTT - END **********************
 
         // ********************** USER CODE END **********************
