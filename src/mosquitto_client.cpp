@@ -4,6 +4,9 @@
 #include <string>
 #include <iostream>
 #include <cstring>
+#include <algorithm>
+#include <ctime>
+#include <cstdlib>
 
 MQTTClient::MQTTClient()
 {
@@ -63,7 +66,10 @@ void MQTTClient::on_connect(struct mosquitto *mosq, void *obj, int reason_code)
     self->connected = (reason_code == 0);
     if (reason_code == 0)
     {
-        mosquitto_subscribe(mosq, nullptr, self->sub_topic, self->qos_sub);
+
+        // Subscribe to all of the topics in the vector
+        for (const auto &t : self->sub_topics)
+            mosquitto_subscribe(mosq, nullptr, t.c_str(), self->qos_sub);
     }
 }
 
@@ -80,6 +86,38 @@ void MQTTClient::on_message(struct mosquitto *mosq, void *obj, const struct mosq
     MQTTClient *self = static_cast<MQTTClient *>(obj);
     self->last_topic = msg->topic;
     self->last_message.assign((const char *)msg->payload, msg->payloadlen);
+
+    // Make a message for the logs
+    std::time_t now = std::time(nullptr);
+    std::tm *t = std::localtime(&now);
+    char time[16];
+    std::strftime(time, sizeof(time), "%H:%M:%S", t);
+
+    Message_received m;
+    m.time = time;
+    m.topic = msg->topic;
+    m.payload = std::string((const char *)msg->payload, msg->payloadlen);
+    m.qos = msg->qos;
+    self->history_rec.push_back(m);
+
+    if (self->history_rec.size() > 50)
+    {
+        self->history_rec.pop_front();
+    }
+
+    // Save temperature values for the plot
+    if (m.topic == "home/temperature")
+    {
+        char *end;
+        float value = std::strtof(m.payload.c_str(), &end);
+        // If 'end' didn't move, no number was read
+        if (end != m.payload.c_str() && *end == '\0')
+        {
+            self->temp_values.push_back(value);
+            if (self->temp_values.size() > 100)
+                self->temp_values.erase(self->temp_values.begin());
+        }
+    }
 }
 
 void MQTTClient::draw()
@@ -103,9 +141,8 @@ void MQTTClient::draw()
     ImGui::SeparatorText("Subscription");
 
     ImGui::InputText("Topic##sub", sub_input, sizeof(sub_input));
-    ImGui::Text("Subscribed topic: %s", sub_topic);
 
-    // Change qos imidiately after user sets it
+    // Change QoS immediately after user sets it
     bool qos_changed = false;
     if (ImGui::RadioButton("QoS 0##sub", &qos_sub, 0))
     {
@@ -122,23 +159,30 @@ void MQTTClient::draw()
         qos_changed = true;
     }
 
-    if (qos_changed && connected && sub_topic[0] != '\0')
+    if (qos_changed && connected)
     {
-        mosquitto_subscribe(mosq, nullptr, sub_topic, qos_sub);
+        for (const auto &t : sub_topics)
+            mosquitto_subscribe(mosq, nullptr, t.c_str(), qos_sub);
     }
 
     if (ImGui::Button("Subscribe"))
     {
         if (sub_input[0] == '\0')
             sub_status = "Subscription topic is empty";
+        // "!= end" means that the element is already on the list
+        else if (std::find(sub_topics.begin(), sub_topics.end(), sub_input) != sub_topics.end())
+        {
+            sub_status = "Already subscribed!";
+        }
+        else if (mosquitto_subscribe(mosq, nullptr, sub_input, qos_sub) == MOSQ_ERR_SUCCESS)
+        {
+            sub_topics.push_back(sub_input);
+            sub_input[0] = '\0';
+            sub_status = "Topic subscribed!";
+        }
         else
         {
-            mosquitto_unsubscribe(mosq, nullptr, sub_topic);
-            snprintf(sub_topic, sizeof(sub_topic), "%s", sub_input);
-            if (mosquitto_subscribe(mosq, nullptr, sub_topic, qos_sub) == MOSQ_ERR_SUCCESS)
-                sub_status = "Topic subscribed!";
-            else
-                sub_status = "Subscribe failed";
+            sub_status = "Subscribe failed";
         }
     }
     if (!sub_status.empty())
@@ -169,16 +213,15 @@ void MQTTClient::draw()
     else
         ImGui::Text("Message is too long!");
 
-        
-        ImGui::RadioButton("QoS 0##pub", &qos_pub, 0);
-        ImGui::SameLine();
-        ImGui::RadioButton("QoS 1##pub", &qos_pub, 1);
-        ImGui::SameLine();
-        ImGui::RadioButton("QoS 2##pub", &qos_pub, 2);
-        
-        // Choose to retain the message on the topic or not
-        ImGui::SameLine();
-        ImGui::Checkbox("Retain", &retain);
+    ImGui::RadioButton("QoS 0##pub", &qos_pub, 0);
+    ImGui::SameLine();
+    ImGui::RadioButton("QoS 1##pub", &qos_pub, 1);
+    ImGui::SameLine();
+    ImGui::RadioButton("QoS 2##pub", &qos_pub, 2);
+
+    // Choose to retain the message on the topic or not
+    ImGui::SameLine();
+    ImGui::Checkbox("Retain", &retain);
 
     if (ImGui::Button("Send"))
     {
@@ -189,7 +232,28 @@ void MQTTClient::draw()
         else if (pub_topic[0] == '\0')
             pub_status = "Topic is empty";
         else if (publish(pub_topic, pub_message, qos_pub, retain))
+        {
+            // Make a message for the logs
+            std::time_t now = std::time(nullptr);
+            std::tm *t = std::localtime(&now);
+            char time[16];
+            std::strftime(time, sizeof(time), "%H:%M:%S", t);
+
+            Message_published m;
+            m.time = time;
+            m.topic = pub_topic;
+            m.payload = pub_message;
+            m.retain = retain;
+            m.qos = qos_pub;
+            history_pub.push_back(m);
+
+            if (history_pub.size() > 50)
+            {
+                history_pub.pop_front();
+            }
+
             pub_status = "Sent";
+        }
         else
             pub_status = "Send failed";
     }
@@ -199,4 +263,73 @@ void MQTTClient::draw()
         ImGui::SameLine();
         ImGui::TextUnformatted(pub_status.c_str());
     }
+}
+
+// LOG WINDOW RECEIVED
+void MQTTClient::draw_history_received()
+{
+
+    if (ImGui::Button("Clear##rec"))
+    {
+        history_rec.clear();
+    }
+    ImGui::BeginChild("Received messages", ImVec2(0, 250), ImGuiChildFlags_Borders | ImGuiChildFlags_AutoResizeX);
+
+    for (const auto &m : history_rec)
+    {
+        ImGui::Text("[%s] %s : %s, QoS: %d", m.time.c_str(), m.topic.c_str(), m.payload.c_str(), m.qos);
+    }
+
+    if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+        ImGui::SetScrollHereY(1.0f);
+
+    ImGui::EndChild();
+}
+
+// LOG WINDOW PUBLISHED
+void MQTTClient::draw_history_published()
+{
+
+    if (ImGui::Button("Clear##pub"))
+    {
+        history_pub.clear();
+    }
+    ImGui::BeginChild("Published messages", ImVec2(0, 250), ImGuiChildFlags_Borders | ImGuiChildFlags_AutoResizeX);
+
+    for (const auto &m : history_pub)
+    {
+        ImGui::Text("[%s] %s : %s, Retain: %s, QoS: %d", m.time.c_str(), m.topic.c_str(), m.payload.c_str(), m.retain ? "true" : "false", m.qos);
+    }
+
+    if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+        ImGui::SetScrollHereY(1.0f);
+
+    ImGui::EndChild();
+}
+
+// WINDOW WITH THE SUBSCRIBED TOPICS
+void MQTTClient::draw_subscriptions()
+{
+    for (size_t i = 0; i < sub_topics.size(); i++)
+    {
+
+        ImGui::PushID((int)i);
+        if (ImGui::Button("X"))
+        {
+            mosquitto_unsubscribe(mosq, nullptr, sub_topics[i].c_str());
+            sub_topics.erase(sub_topics.begin() + i);
+            ImGui::PopID();
+            break;
+        }
+        ImGui::SameLine();
+        ImGui::TextUnformatted(sub_topics[i].c_str());
+        ImGui::PopID();
+    }
+}
+
+// TEMPERATURE PLOT
+void MQTTClient::draw_plot()
+{
+    ImGui::PlotLines("##temp", temp_values.data(), (int)temp_values.size(),
+                     0, nullptr, FLT_MAX, FLT_MAX, ImVec2(400, 150));
 }
