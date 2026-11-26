@@ -169,15 +169,16 @@ void MQTTClient::draw()
     else
         ImGui::Text("Message is too long!");
 
-    // Choose to retain the message on the topic or not
-    ImGui::Checkbox("Retain", &retain);
-    ImGui::SameLine();
-
-    ImGui::RadioButton("QoS 0##pub", &qos_pub, 0);
-    ImGui::SameLine();
-    ImGui::RadioButton("QoS 1##pub", &qos_pub, 1);
-    ImGui::SameLine();
-    ImGui::RadioButton("QoS 2##pub", &qos_pub, 2);
+        
+        ImGui::RadioButton("QoS 0##pub", &qos_pub, 0);
+        ImGui::SameLine();
+        ImGui::RadioButton("QoS 1##pub", &qos_pub, 1);
+        ImGui::SameLine();
+        ImGui::RadioButton("QoS 2##pub", &qos_pub, 2);
+        
+        // Choose to retain the message on the topic or not
+        ImGui::SameLine();
+        ImGui::Checkbox("Retain", &retain);
 
     if (ImGui::Button("Send"))
     {
