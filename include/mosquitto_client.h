@@ -33,6 +33,7 @@ void draw();
 void draw_history_received();
 void draw_history_published();
 void draw_subscriptions();
+void draw_plot();
 
 private:
 
@@ -50,6 +51,9 @@ private:
     // Logs
     std::deque<Message_received> history_rec;
     std::deque<Message_published> history_pub;
+
+    // Plot
+    std::vector<float> temp_values;
 
     // Publish
     char pub_message[256] = "";

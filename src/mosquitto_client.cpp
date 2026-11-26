@@ -6,6 +6,7 @@
 #include <cstring>
 #include <algorithm>
 #include <ctime>
+#include <cstdlib>
 
 MQTTClient::MQTTClient()
 {
@@ -102,6 +103,20 @@ void MQTTClient::on_message(struct mosquitto *mosq, void *obj, const struct mosq
     if (self->history_rec.size() > 50)
     {
         self->history_rec.pop_front();
+    }
+
+    // Save temperature values for the plot
+    if (m.topic == "home/temperature")
+    {
+        char *end;
+        float value = std::strtof(m.payload.c_str(), &end);
+        // If 'end' didn't move, no number was read
+        if (end != m.payload.c_str() && *end == '\0')
+        {
+            self->temp_values.push_back(value);
+            if (self->temp_values.size() > 100)
+                self->temp_values.erase(self->temp_values.begin());
+        }
     }
 }
 
@@ -310,4 +325,11 @@ void MQTTClient::draw_subscriptions()
         ImGui::TextUnformatted(sub_topics[i].c_str());
         ImGui::PopID();
     }
+}
+
+// TEMPERATURE PLOT
+void MQTTClient::draw_plot()
+{
+    ImGui::PlotLines("##temp", temp_values.data(), (int)temp_values.size(),
+                     0, nullptr, FLT_MAX, FLT_MAX, ImVec2(400, 150));
 }

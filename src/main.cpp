@@ -253,6 +253,19 @@ int main(int, char **)
 
         // ********************** 7) SUBSCRIBED TOPICS - END **********************
 
+        // ********************** 8) TEMPERATURE PLOT - START **********************
+
+        // First ImVec2 is for the min. size and the second one is for the max size
+        ImGui::SetNextWindowSizeConstraints(ImVec2(600, 0), ImVec2(600, 600));
+        // Set the position of the window at the start of the app
+        ImGui::SetNextWindowPos(ImVec2(700, 500), ImGuiCond_Once);
+        ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
+        ImGui::Begin("Temperature");
+        mqtt.draw_plot();
+        ImGui::End();
+
+        // ********************** 8) TEMPARATURE PLOT - END **********************
+
         // ********************** USER CODE END **********************
 
         // Rendering
