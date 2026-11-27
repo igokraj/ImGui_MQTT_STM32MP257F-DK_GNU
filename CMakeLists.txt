@@ -21,7 +21,7 @@ add_executable(app
     ${IMGUI_BACKENDS}/imgui_impl_opengl3.cpp
     ${IMPLOT_DIR}/implot.cpp
     ${IMPLOT_DIR}/implot_items.cpp
-    src/calculator.cpp
+    # src/calculator.cpp
     src/clock.cpp
     src/mosquitto_client.cpp
 )

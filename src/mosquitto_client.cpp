@@ -268,7 +268,7 @@ void MQTTClient::draw_history_received()
     {
         history_rec.clear();
     }
-    ImGui::BeginChild("Received messages", ImVec2(0, 450), ImGuiChildFlags_Borders | ImGuiChildFlags_AutoResizeX);
+    ImGui::BeginChild("Received messages", ImVec2(0, 740), ImGuiChildFlags_Borders | ImGuiChildFlags_AutoResizeX);
 
     for (const auto &m : history_rec)
     {
@@ -289,7 +289,7 @@ void MQTTClient::draw_history_published()
     {
         history_pub.clear();
     }
-    ImGui::BeginChild("Published messages", ImVec2(0, 450), ImGuiChildFlags_Borders | ImGuiChildFlags_AutoResizeX);
+    ImGui::BeginChild("Published messages", ImVec2(0, 740), ImGuiChildFlags_Borders | ImGuiChildFlags_AutoResizeX);
 
     for (const auto &m : history_pub)
     {
