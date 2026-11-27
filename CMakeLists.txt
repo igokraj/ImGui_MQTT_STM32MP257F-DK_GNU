@@ -6,6 +6,8 @@ find_package(glfw3 REQUIRED)
 
 set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/external/imgui)
 set(IMGUI_BACKENDS ${CMAKE_SOURCE_DIR}/external/backends)
+set(IMPLOT_DIR ${CMAKE_SOURCE_DIR}/external/ImPlot)
+
 
 add_executable(app
     src/main.cpp
@@ -17,6 +19,8 @@ add_executable(app
     ${IMGUI_DIR}/imgui_stdlib.cpp
     ${IMGUI_BACKENDS}/imgui_impl_glfw.cpp
     ${IMGUI_BACKENDS}/imgui_impl_opengl3.cpp
+    ${IMPLOT_DIR}/implot.cpp
+    ${IMPLOT_DIR}/implot_items.cpp
     src/calculator.cpp
     src/clock.cpp
     src/mosquitto_client.cpp
@@ -25,7 +29,8 @@ target_include_directories(app PRIVATE
 
 ${CMAKE_SOURCE_DIR}/include
 ${IMGUI_DIR} 
-${IMGUI_BACKENDS})
+${IMGUI_BACKENDS}
+${IMPLOT_DIR})
 
 target_link_libraries(app PRIVATE mosquitto)
 

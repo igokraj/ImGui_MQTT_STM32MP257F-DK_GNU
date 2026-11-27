@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <ctime>
 #include <cstdlib>
+#include <implot.h>
 
 MQTTClient::MQTTClient()
 {
@@ -105,19 +106,11 @@ void MQTTClient::on_message(struct mosquitto *mosq, void *obj, const struct mosq
         self->history_rec.pop_front();
     }
 
-    // Save temperature values for the plot
+    // PLOTS
     if (m.topic == "home/temperature")
-    {
-        char *end;
-        float value = std::strtof(m.payload.c_str(), &end);
-        // If 'end' didn't move, no number was read
-        if (end != m.payload.c_str() && *end == '\0')
-        {
-            self->temp_values.push_back(value);
-            if (self->temp_values.size() > 100)
-                self->temp_values.erase(self->temp_values.begin());
-        }
-    }
+        self->add_val(self->temp_data, m.payload);
+    else if (m.topic == "home/preassure")
+        self->add_val(self->press_data, m.payload);
 }
 
 void MQTTClient::draw()
@@ -327,9 +320,44 @@ void MQTTClient::draw_subscriptions()
     }
 }
 
-// TEMPERATURE PLOT
-void MQTTClient::draw_plot()
+// General function for plots
+void MQTTClient::draw_plot(const char *topic, const char *unit, PlotData &data)
 {
-    ImGui::PlotLines("##temp", temp_values.data(), (int)temp_values.size(),
-                     0, nullptr, FLT_MAX, FLT_MAX, ImVec2(400, 150));
+    if (data.values.empty())
+    {
+        ImGui::TextUnformatted("Waiting for data on %s...", topic);
+        return;
+    }
+
+    ImGui::Text("Current: %.2f %s", data.values.back(), unit);
+
+    if (ImPlot::BeginPlot(topic, ImVec2(-1, -1), ImPlotFlags_NoLegend))
+    {
+        ImPlot::SetupAxes("Time", unit, ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
+        ImPlot::SetupAxisScale(ImAxis_X1, ImPlotScale_Time);
+        ImPlot::PlotLine(topic, data.times.data(), data.values.data(), (int)data.values.size());
+        ImPlot::EndPlot();
+    }
+}
+
+// General function for the collection of data
+void MQTTClient::add_val(PlotData &data, const std::string &payload)
+{
+    char *end;
+    double value = std::strtod(payload.c_str(), &end);
+    // If 'end' didn't move or there is text after the number -> not a number
+    if (end == payload.c_str() || *end != '\0')
+    {
+        return;
+    }
+
+    data.values.push_back(value);
+    data.times.push_back((double)std::time(nullptr));
+
+    // Keep only the last 100 values
+    if (data.values.size() > 100)
+    {
+        data.values.erase(data.values.begin());
+        data.times.erase(data.times.begin());
+    }
 }

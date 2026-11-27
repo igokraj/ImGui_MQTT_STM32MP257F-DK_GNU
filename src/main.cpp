@@ -22,6 +22,7 @@
 #include "calculator.h"
 #include "clock.h"
 #include "mosquitto_client.h"
+#include "implot.h"
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
 // To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
@@ -84,6 +85,9 @@ int main(int, char **)
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
+    ImPlot::CreateContext();
+    ImPlot::GetStyle().UseLocalTime = true;   // show local time instead of UTC
+    ImPlot::GetStyle().Use24HourClock = true; // 21:46 instead of 9:46pm
     ImGuiIO &io = ImGui::GetIO();
     (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
@@ -256,15 +260,30 @@ int main(int, char **)
         // ********************** 8) TEMPERATURE PLOT - START **********************
 
         // First ImVec2 is for the min. size and the second one is for the max size
-        ImGui::SetNextWindowSizeConstraints(ImVec2(600, 0), ImVec2(600, 600));
+        ImGui::SetNextWindowSizeConstraints(ImVec2(400, 250), ImVec2(FLT_MAX, FLT_MAX));
         // Set the position of the window at the start of the app
         ImGui::SetNextWindowPos(ImVec2(700, 500), ImGuiCond_Once);
+        ImGui::SetNextWindowSize(ImVec2(600, 350), ImGuiCond_Once);
         ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
         ImGui::Begin("Temperature");
-        mqtt.draw_plot();
+        mqtt.draw_temp();
         ImGui::End();
 
-        // ********************** 8) TEMPARATURE PLOT - END **********************
+        // ********************** 8) TEMPERATURE PLOT - END **********************
+
+        // ********************** 9) PRESSURE PLOT - START **********************
+
+        // First ImVec2 is for the min. size and the second one is for the max size
+        ImGui::SetNextWindowSizeConstraints(ImVec2(400, 250), ImVec2(FLT_MAX, FLT_MAX));
+        // Set the position of the window at the start of the app
+        ImGui::SetNextWindowPos(ImVec2(700, 100), ImGuiCond_Once);
+        ImGui::SetNextWindowSize(ImVec2(600, 350), ImGuiCond_Once);
+        ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
+        ImGui::Begin("Pressure");
+        mqtt.draw_press();
+        ImGui::End();
+
+        // ********************** 9) PRESSURE PLOT - END *********************************
 
         // ********************** USER CODE END **********************
 
@@ -287,6 +306,7 @@ int main(int, char **)
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
+    ImPlot::DestroyContext();
 
     glfwDestroyWindow(window);
     glfwTerminate();
