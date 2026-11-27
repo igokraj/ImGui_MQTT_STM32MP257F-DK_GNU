@@ -6,4 +6,6 @@ It connects to a local Mosquitto broker on `localhost:1883`.
 
 ![Screenshot](docs/screenshot.png)
 
+![Screenshot with live data](docs/screenshot_live.png)
+
 Dear ImGui and ImPlot are licensed under the MIT license (see `external/imgui/LICENSE.txt` and `external/ImPlot/LICENSE`); this project is MIT licensed as well (see `LICENSE`).
