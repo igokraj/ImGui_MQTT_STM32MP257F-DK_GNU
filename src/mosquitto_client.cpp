@@ -111,20 +111,7 @@ void MQTTClient::on_message(struct mosquitto *mosq, void *obj, const struct mosq
     // Save temperature values for the plot
     if (m.topic == "home/temperature")
     {
-        char *end;
-        float value = std::strtof(m.payload.c_str(), &end);
-        // If 'end' didn't move, no number was read
-        if (end != m.payload.c_str() && *end == '\0')
-        {
-            self->temp_values.push_back(value);
-            if (self->temp_values.size() > 100)
-                self->temp_values.erase(self->temp_values.begin());
-
-            // Save time values for the plot
-            self->temp_times.push_back((double)std::time(nullptr));
-            if (self->temp_times.size() > 100)
-                self->temp_times.erase(self->temp_times.begin());
-        }
+        self->TakeTempData(m.payload);
     }
 
     // ************** TEMP PLOT END *****************
@@ -355,4 +342,23 @@ void MQTTClient::draw_plot()
         ImPlot::PlotLine("home/temperature", temp_times.data(), temp_values.data(), (int)temp_values.size());
         ImPlot::EndPlot();
     }
+}
+
+
+void MQTTClient::TakeTempData(const std::string &payload) {
+
+    char *end;
+        float value = std::strtof(payload.c_str(), &end);
+        // If 'end' didn't move, no number was read
+        if (end != payload.c_str() && *end == '\0')
+        {
+            temp_values.push_back(value);
+            if (temp_values.size() > 100)
+                temp_values.erase(temp_values.begin());
+
+            // Save time values for the plot
+            temp_times.push_back((double)std::time(nullptr));
+            if (temp_times.size() > 100)
+                temp_times.erase(temp_times.begin());
+        }
 }

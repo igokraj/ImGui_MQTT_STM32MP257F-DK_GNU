@@ -34,6 +34,7 @@ void draw_history_received();
 void draw_history_published();
 void draw_subscriptions();
 void draw_plot();
+void TakeTempData(const std::string &payload);
 
 private:
 
