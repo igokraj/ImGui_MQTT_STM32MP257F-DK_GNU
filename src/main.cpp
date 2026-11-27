@@ -264,7 +264,7 @@ int main(int, char **)
         ImGui::SetNextWindowSizeConstraints(ImVec2(400, 250), ImVec2(FLT_MAX, FLT_MAX));
         // Set the position of the window at the start of the app
         ImGui::SetNextWindowPos(ImVec2(1355, 15), ImGuiCond_Once);
-        ImGui::SetNextWindowSize(ImVec2(1180, 510), ImGuiCond_Once);
+        ImGui::SetNextWindowSize(ImVec2(1180, 440), ImGuiCond_Once);
         ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
         ImGui::Begin("Temperature");
         mqtt.draw_temp();
@@ -277,8 +277,8 @@ int main(int, char **)
         // First ImVec2 is for the min. size and the second one is for the max size
         ImGui::SetNextWindowSizeConstraints(ImVec2(400, 250), ImVec2(FLT_MAX, FLT_MAX));
         // Set the position of the window at the start of the app
-        ImGui::SetNextWindowPos(ImVec2(1355, 540), ImGuiCond_Once);
-        ImGui::SetNextWindowSize(ImVec2(1180, 510), ImGuiCond_Once);
+        ImGui::SetNextWindowPos(ImVec2(1355, 470), ImGuiCond_Once);
+        ImGui::SetNextWindowSize(ImVec2(1180, 440), ImGuiCond_Once);
         ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
         ImGui::Begin("Pressure");
         mqtt.draw_press();
@@ -291,8 +291,8 @@ int main(int, char **)
         // First ImVec2 is for the min. size and the second one is for the max size
         ImGui::SetNextWindowSizeConstraints(ImVec2(400, 250), ImVec2(FLT_MAX, FLT_MAX));
         // Set the position of the window at the start of the app
-        ImGui::SetNextWindowPos(ImVec2(1355, 1065), ImGuiCond_Once);
-        ImGui::SetNextWindowSize(ImVec2(1180, 510), ImGuiCond_Once);
+        ImGui::SetNextWindowPos(ImVec2(1355, 925), ImGuiCond_Once);
+        ImGui::SetNextWindowSize(ImVec2(1180, 440), ImGuiCond_Once);
         ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
         ImGui::Begin("Humidity");
         mqtt.draw_hum();
@@ -302,13 +302,11 @@ int main(int, char **)
 
         // ********************** 11) DEEP SLEEP - START **********************
 
-        // First ImVec2 is for the min. size and the second one is for the max size
-        ImGui::SetNextWindowSizeConstraints(ImVec2(400, 250), ImVec2(FLT_MAX, FLT_MAX));
         // Set the position of the window at the start of the app
-        ImGui::SetNextWindowPos(ImVec2(1355, 1065), ImGuiCond_Once);
-        ImGui::SetNextWindowSize(ImVec2(1180, 510), ImGuiCond_Once);
+        ImGui::SetNextWindowPos(ImVec2(1355, 1380), ImGuiCond_Once);
         ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
-        ImGui::Begin("Deep Sleep Intervals");
+        // Window size fits its content
+        ImGui::Begin("Deep Sleep Intervals", NULL, ImGuiWindowFlags_AlwaysAutoResize);
         mqtt.draw_deepsleep_intevral();
         ImGui::End();
 

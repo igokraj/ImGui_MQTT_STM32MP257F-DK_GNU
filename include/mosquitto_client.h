@@ -97,8 +97,10 @@ private:
     int qos_sub = 0;
 
     // Deep Sleep Interval
-    int esp_interval = 60;
+    int sleep_interval = 60;
     std::string time_status;
+    bool interval_retain = false;
+    int qos_interval = 0;
 
     // Callbacks
     static void on_disconnect(struct mosquitto *mosq, void *obj, int reason_code);

@@ -366,15 +366,39 @@ void MQTTClient::add_val(PlotData &data, const std::string &payload)
 
 void MQTTClient::draw_deepsleep_intevral()
 {
+    ImGui::SeparatorText("QoS and retain");
+
+    ImGui::RadioButton("QoS 0##time", &qos_interval, 0);
+    ImGui::SameLine();
+    ImGui::RadioButton("QoS 1##time", &qos_interval, 1);
+    ImGui::SameLine();
+    ImGui::RadioButton("QoS 2##time", &qos_interval, 2);
+
+    // Choose to retain the message on the topic or not
+    ImGui::SameLine();
+    ImGui::Checkbox("Retain", &interval_retain);
+
+    ImGui::Spacing();
+    ImGui::SeparatorText("Deep sleep interval");
+
+    int previous_interval = sleep_interval;
+
     int intervals[] = {60, 300, 600, 900, 1800, 3600};
     for (int i = 0; i < IM_ARRAYSIZE(intervals); i++)
     {
-
         char label[16];
         snprintf(label, sizeof(label), "%d min", intervals[i] / 60);
+        // Skip first "SameLine()"
+        if (i > 0)
+            ImGui::SameLine();
+        ImGui::RadioButton(label, &sleep_interval, intervals[i]);
+    }
 
-        ImGui::SameLine();
-        ImGui::Button(label);
+    if (sleep_interval != previous_interval)
+    {
+        char json[64];
+        snprintf(json, sizeof(json), "{\"interval\": %d}", sleep_interval);
+        publish("home/time", json, qos_interval, interval_retain);
     }
 }
 
