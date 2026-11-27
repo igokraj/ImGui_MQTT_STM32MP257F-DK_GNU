@@ -106,16 +106,14 @@ void MQTTClient::on_message(struct mosquitto *mosq, void *obj, const struct mosq
         self->history_rec.pop_front();
     }
 
-    // *********** TEMP PLOT ********************
-
-    // Save temperature values for the plot
+    // PLOTS
     if (m.topic == "home/temperature")
-    {
-        self->TakeTempData(m.payload);
+    self->TakeData(m.payload, self->temp_values, self->temp_times);
+    else if (m.topic == "home/preassure")
+    self->TakeData(m.payload, self->preass_values, self->preass_times);
+
     }
 
-    // ************** TEMP PLOT END *****************
-}
 
 void MQTTClient::draw()
 {
@@ -345,20 +343,20 @@ void MQTTClient::draw_plot()
 }
 
 
-void MQTTClient::TakeTempData(const std::string &payload) {
+void MQTTClient::TakeData(const std::string &payload, std::vector<double> values, std::vector<double> times) {
 
     char *end;
         float value = std::strtof(payload.c_str(), &end);
         // If 'end' didn't move, no number was read
         if (end != payload.c_str() && *end == '\0')
         {
-            temp_values.push_back(value);
-            if (temp_values.size() > 100)
-                temp_values.erase(temp_values.begin());
+            values.push_back(value);
+            if (values.size() > 100)
+                values.erase(values.begin());
 
             // Save time values for the plot
-            temp_times.push_back((double)std::time(nullptr));
-            if (temp_times.size() > 100)
-                temp_times.erase(temp_times.begin());
+            times.push_back((double)std::time(nullptr));
+            if (times.size() > 100)
+                times.erase(times.begin());
         }
 }

@@ -34,7 +34,7 @@ void draw_history_received();
 void draw_history_published();
 void draw_subscriptions();
 void draw_plot();
-void TakeTempData(const std::string &payload);
+void TakeData(const std::string &payload, std::vector<double> values, std::vector<double> times);
 
 private:
 
@@ -53,9 +53,13 @@ private:
     std::deque<Message_received> history_rec;
     std::deque<Message_published> history_pub;
 
-    // Plot
+    // Plot temp
     std::vector<double> temp_values;
     std::vector<double> temp_times;
+    
+    // Plot preass
+    std::vector<double> preass_values;
+    std::vector<double> preass_times;
 
     // Publish
     char pub_message[256] = "";
