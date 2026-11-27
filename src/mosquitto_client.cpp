@@ -111,6 +111,8 @@ void MQTTClient::on_message(struct mosquitto *mosq, void *obj, const struct mosq
         self->add_val(self->temp_data, m.payload);
     else if (m.topic == "home/preassure")
         self->add_val(self->press_data, m.payload);
+    else if (m.topic == "home/humidity")
+        self->add_val(self->hum_data, m.payload);
 }
 
 void MQTTClient::draw()

@@ -51,6 +51,10 @@ public:
     { 
         draw_plot("home/preassure", "hPa", press_data); 
     }
+    void draw_hum()
+    {
+        draw_plot("home/humidity", "%", hum_data);
+    }
     void add_val(PlotData &data, const std::string &payload);
 
 private:
@@ -74,6 +78,9 @@ private:
 
     // Plot preass
     PlotData press_data;
+
+    // Plot humidity
+    PlotData hum_data;
 
     // Publish
     char pub_message[256] = "";

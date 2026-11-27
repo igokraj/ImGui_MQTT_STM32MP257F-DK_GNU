@@ -264,7 +264,7 @@ int main(int, char **)
         ImGui::SetNextWindowSizeConstraints(ImVec2(400, 250), ImVec2(FLT_MAX, FLT_MAX));
         // Set the position of the window at the start of the app
         ImGui::SetNextWindowPos(ImVec2(1355, 15), ImGuiCond_Once);
-        ImGui::SetNextWindowSize(ImVec2(1180, 770), ImGuiCond_Once);
+        ImGui::SetNextWindowSize(ImVec2(1180, 510), ImGuiCond_Once);
         ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
         ImGui::Begin("Temperature");
         mqtt.draw_temp();
@@ -277,14 +277,28 @@ int main(int, char **)
         // First ImVec2 is for the min. size and the second one is for the max size
         ImGui::SetNextWindowSizeConstraints(ImVec2(400, 250), ImVec2(FLT_MAX, FLT_MAX));
         // Set the position of the window at the start of the app
-        ImGui::SetNextWindowPos(ImVec2(1355, 815), ImGuiCond_Once);
-        ImGui::SetNextWindowSize(ImVec2(1180, 770), ImGuiCond_Once);
+        ImGui::SetNextWindowPos(ImVec2(1355, 540), ImGuiCond_Once);
+        ImGui::SetNextWindowSize(ImVec2(1180, 510), ImGuiCond_Once);
         ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
         ImGui::Begin("Pressure");
         mqtt.draw_press();
         ImGui::End();
 
-        // ********************** 9) PRESSURE PLOT - END *********************************
+        // ********************** 9) PRESSURE PLOT - END **********************
+
+        // ********************** 10) HUMIDITY PLOT - START **********************
+
+        // First ImVec2 is for the min. size and the second one is for the max size
+        ImGui::SetNextWindowSizeConstraints(ImVec2(400, 250), ImVec2(FLT_MAX, FLT_MAX));
+        // Set the position of the window at the start of the app
+        ImGui::SetNextWindowPos(ImVec2(1355, 1065), ImGuiCond_Once);
+        ImGui::SetNextWindowSize(ImVec2(1180, 510), ImGuiCond_Once);
+        ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
+        ImGui::Begin("Humidity");
+        mqtt.draw_hum();
+        ImGui::End();
+
+        // ********************** 10) HUMIDITY PLOT - END **********************
 
         // ********************** USER CODE END **********************
 
