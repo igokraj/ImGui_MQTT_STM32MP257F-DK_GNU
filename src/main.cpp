@@ -76,7 +76,7 @@ int main(int, char **)
 
     // Create window with graphics context
     float main_scale = ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor()); // Valid on GLFW 3.3+ only
-    GLFWwindow *window = glfwCreateWindow((int)(1280 * main_scale), (int)(800 * main_scale), "Dear ImGui GLFW+OpenGL3 example", nullptr, nullptr);
+    GLFWwindow *window = glfwCreateWindow((int)(1280 * main_scale), (int)(800 * main_scale), "STM32MP257F-DK GUI", nullptr, nullptr);
     if (window == nullptr)
         return 1;
     glfwMakeContextCurrent(window);
@@ -177,7 +177,7 @@ int main(int, char **)
         // First ImVec2 is for the min. size and the second one is for the max size
         ImGui::SetNextWindowSizeConstraints(ImVec2(350, 0), ImVec2(600, 600));
         // Set the position of the window at the start of the app
-        ImGui::SetNextWindowPos(ImVec2(50, 50), ImGuiCond_Once);
+        ImGui::SetNextWindowPos(ImVec2(25, 195), ImGuiCond_Once);
         ImGui::Begin("Choose your colour!", NULL, ImGuiWindowFlags_AlwaysAutoResize);
         ImGui::ColorEdit3("Click here", (float *)&clear_color, ImGuiColorEditFlags_NoInputs); // Edit 3 floats representing a color
         ImGui::End();
@@ -188,7 +188,7 @@ int main(int, char **)
 
         ImGui::SetNextWindowSize(ImVec2(600, 600));
         // Set the position of the window at the start of the app
-        ImGui::SetNextWindowPos(ImVec2(50, 200), ImGuiCond_Once);
+        ImGui::SetNextWindowPos(ImVec2(25, 495), ImGuiCond_Once);
         ImGui::SetNextWindowCollapsed(true, ImGuiCond_Once);
         ImGui::Begin("Calculator app", NULL, ImGuiWindowFlags_NoResize);
         calc.draw();
@@ -201,7 +201,7 @@ int main(int, char **)
         // First ImVec2 is for the min. size and the second one is for the max size
         ImGui::SetNextWindowSizeConstraints(ImVec2(300, 0), ImVec2(600, 600));
         // Set the position of the window at the start of the app
-        ImGui::SetNextWindowPos(ImVec2(1000, 50), ImGuiCond_Once);
+        ImGui::SetNextWindowPos(ImVec2(25, 15), ImGuiCond_Once);
         ImGui::Begin("Time/date/day", NULL, ImGuiWindowFlags_AlwaysAutoResize);
         clk.draw();
         ImGui::End();
@@ -211,7 +211,7 @@ int main(int, char **)
         // ********************** 4) MQTT - START **********************
 
         // Set the position of the window at the start of the app
-        ImGui::SetNextWindowPos(ImVec2(1000, 500), ImGuiCond_Once);
+        ImGui::SetNextWindowPos(ImVec2(700, 90), ImGuiCond_Once);
         ImGui::Begin("MQTT", NULL, ImGuiWindowFlags_AlwaysAutoResize);
         mqtt.draw();
         ImGui::End();
@@ -221,9 +221,9 @@ int main(int, char **)
         // ********************** 5) LOGS RECEIVED - START **********************
 
         // First ImVec2 is for the min. size and the second one is for the max size
-        ImGui::SetNextWindowSizeConstraints(ImVec2(400, 0), ImVec2(FLT_MAX, FLT_MAX));
+        ImGui::SetNextWindowSizeConstraints(ImVec2(600, 0), ImVec2(FLT_MAX, FLT_MAX));
         // Set the position of the window at the start of the app
-        ImGui::SetNextWindowPos(ImVec2(500, 500), ImGuiCond_Once);
+        ImGui::SetNextWindowPos(ImVec2(25, 985), ImGuiCond_Once);
         ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
         ImGui::Begin("LOGS RECEIVED", NULL, ImGuiWindowFlags_AlwaysAutoResize);
         mqtt.draw_history_received();
@@ -234,9 +234,9 @@ int main(int, char **)
         // ********************** 6) LOGS PUBLISHED - START **********************
 
         // First ImVec2 is for the min. size and the second one is for the max size
-        ImGui::SetNextWindowSizeConstraints(ImVec2(400, 0), ImVec2(FLT_MAX, FLT_MAX));
+        ImGui::SetNextWindowSizeConstraints(ImVec2(600, 0), ImVec2(FLT_MAX, FLT_MAX));
         // Set the position of the window at the start of the app
-        ImGui::SetNextWindowPos(ImVec2(800, 800), ImGuiCond_Once);
+        ImGui::SetNextWindowPos(ImVec2(700, 985), ImGuiCond_Once);
         ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
         ImGui::Begin("LOGS PUBLISHED", NULL, ImGuiWindowFlags_AlwaysAutoResize);
         mqtt.draw_history_published();
@@ -249,7 +249,8 @@ int main(int, char **)
         // First ImVec2 is for the min. size and the second one is for the max size
         ImGui::SetNextWindowSizeConstraints(ImVec2(600, 0), ImVec2(600, 600));
         // Set the position of the window at the start of the app
-        ImGui::SetNextWindowPos(ImVec2(300, 200), ImGuiCond_Once);
+        ImGui::SetNextWindowPos(ImVec2(25, 600), ImGuiCond_Once);
+        ImGui::SetNextWindowSize(ImVec2(600, 255), ImGuiCond_Once);
         ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
         ImGui::Begin("SUBSCRIBED TOPICS");
         mqtt.draw_subscriptions();
@@ -262,8 +263,8 @@ int main(int, char **)
         // First ImVec2 is for the min. size and the second one is for the max size
         ImGui::SetNextWindowSizeConstraints(ImVec2(400, 250), ImVec2(FLT_MAX, FLT_MAX));
         // Set the position of the window at the start of the app
-        ImGui::SetNextWindowPos(ImVec2(700, 500), ImGuiCond_Once);
-        ImGui::SetNextWindowSize(ImVec2(600, 350), ImGuiCond_Once);
+        ImGui::SetNextWindowPos(ImVec2(1355, 15), ImGuiCond_Once);
+        ImGui::SetNextWindowSize(ImVec2(1180, 770), ImGuiCond_Once);
         ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
         ImGui::Begin("Temperature");
         mqtt.draw_temp();
@@ -276,8 +277,8 @@ int main(int, char **)
         // First ImVec2 is for the min. size and the second one is for the max size
         ImGui::SetNextWindowSizeConstraints(ImVec2(400, 250), ImVec2(FLT_MAX, FLT_MAX));
         // Set the position of the window at the start of the app
-        ImGui::SetNextWindowPos(ImVec2(700, 100), ImGuiCond_Once);
-        ImGui::SetNextWindowSize(ImVec2(600, 350), ImGuiCond_Once);
+        ImGui::SetNextWindowPos(ImVec2(1355, 815), ImGuiCond_Once);
+        ImGui::SetNextWindowSize(ImVec2(1180, 770), ImGuiCond_Once);
         ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
         ImGui::Begin("Pressure");
         mqtt.draw_press();

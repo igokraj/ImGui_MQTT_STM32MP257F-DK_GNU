@@ -1,0 +1,6 @@
+Komenda do testowania:
+
+while true; do
+  mosquitto_pub -h localhost -t home/temperature -m "$(awk -v r=$RANDOM 'BEGIN{printf "%.1f", 20 + r/32767*5}')"
+  mosquitto_pub -h localhost -t home/preassure  -m "$(awk -v r=$RANDOM 'BEGIN{printf "%.1f", 1000 + r/32767*20}')"
+  sleep 1
