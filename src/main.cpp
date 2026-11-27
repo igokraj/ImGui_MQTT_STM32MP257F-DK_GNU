@@ -266,10 +266,24 @@ int main(int, char **)
         ImGui::SetNextWindowSize(ImVec2(600, 350), ImGuiCond_Once);
         ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
         ImGui::Begin("Temperature");
-        mqtt.draw_plot();
+        mqtt.draw_temp();
         ImGui::End();
 
-        // ********************** 8) TEMPARATURE PLOT - END **********************
+        // ********************** 8) TEMPERATURE PLOT - END **********************
+
+        // ********************** 9) PRESSURE PLOT - START **********************
+
+        // First ImVec2 is for the min. size and the second one is for the max size
+        ImGui::SetNextWindowSizeConstraints(ImVec2(400, 250), ImVec2(FLT_MAX, FLT_MAX));
+        // Set the position of the window at the start of the app
+        ImGui::SetNextWindowPos(ImVec2(700, 100), ImGuiCond_Once);
+        ImGui::SetNextWindowSize(ImVec2(600, 350), ImGuiCond_Once);
+        ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
+        ImGui::Begin("Pressure");
+        mqtt.draw_press();
+        ImGui::End();
+
+        // ********************** 9) PRESSURE PLOT - END *********************************
 
         // ********************** USER CODE END **********************
 

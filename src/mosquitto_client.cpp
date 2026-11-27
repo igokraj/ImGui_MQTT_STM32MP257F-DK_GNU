@@ -108,12 +108,10 @@ void MQTTClient::on_message(struct mosquitto *mosq, void *obj, const struct mosq
 
     // PLOTS
     if (m.topic == "home/temperature")
-    self->TakeData(m.payload, self->temp_values, self->temp_times);
+        self->add_val(self->temp_data, m.payload);
     else if (m.topic == "home/preassure")
-    self->TakeData(m.payload, self->preass_values, self->preass_times);
-
-    }
-
+        self->add_val(self->press_data, m.payload);
+}
 
 void MQTTClient::draw()
 {
@@ -322,41 +320,44 @@ void MQTTClient::draw_subscriptions()
     }
 }
 
-// TEMPERATURE PLOT
-void MQTTClient::draw_plot()
+// General function for plots
+void MQTTClient::draw_plot(const char *topic, const char *unit, PlotData &data)
 {
-    if (temp_values.empty())
+    if (data.values.empty())
     {
-        ImGui::TextUnformatted("Waiting for data on home/temperature...");
+        ImGui::TextUnformatted("Waiting for data on %s...", topic);
         return;
     }
 
-    ImGui::Text("Current: %.2f C", temp_values.back());
+    ImGui::Text("Current: %.2f %s", data.values.back(), unit);
 
-    if (ImPlot::BeginPlot("##temp", ImVec2(-1, -1), ImPlotFlags_NoLegend))
+    if (ImPlot::BeginPlot(topic, ImVec2(-1, -1), ImPlotFlags_NoLegend))
     {
-        ImPlot::SetupAxes("Time", "Temperature [C]", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
+        ImPlot::SetupAxes("Time", unit, ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
         ImPlot::SetupAxisScale(ImAxis_X1, ImPlotScale_Time);
-        ImPlot::PlotLine("home/temperature", temp_times.data(), temp_values.data(), (int)temp_values.size());
+        ImPlot::PlotLine(topic, data.times.data(), data.values.data(), (int)data.values.size());
         ImPlot::EndPlot();
     }
 }
 
-
-void MQTTClient::TakeData(const std::string &payload, std::vector<double> values, std::vector<double> times) {
-
+// General function for the collection of data
+void MQTTClient::add_val(PlotData &data, const std::string &payload)
+{
     char *end;
-        float value = std::strtof(payload.c_str(), &end);
-        // If 'end' didn't move, no number was read
-        if (end != payload.c_str() && *end == '\0')
-        {
-            values.push_back(value);
-            if (values.size() > 100)
-                values.erase(values.begin());
+    double value = std::strtod(payload.c_str(), &end);
+    // If 'end' didn't move or there is text after the number -> not a number
+    if (end == payload.c_str() || *end != '\0')
+    {
+        return;
+    }
 
-            // Save time values for the plot
-            times.push_back((double)std::time(nullptr));
-            if (times.size() > 100)
-                times.erase(times.begin());
-        }
+    data.values.push_back(value);
+    data.times.push_back((double)std::time(nullptr));
+
+    // Keep only the last 100 values
+    if (data.values.size() > 100)
+    {
+        data.values.erase(data.values.begin());
+        data.times.erase(data.times.begin());
+    }
 }

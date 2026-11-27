@@ -1,18 +1,20 @@
-#pragma once 
+#pragma once
 #include <string>
 #include <mosquitto.h>
 #include <chrono>
 #include <deque>
 #include <vector>
 
-struct Message_received {
+struct Message_received
+{
     std::string time;
     std::string topic;
     std::string payload;
     int qos;
 };
 
-struct Message_published {
+struct Message_published
+{
     std::string time;
     std::string topic;
     std::string payload;
@@ -20,31 +22,45 @@ struct Message_published {
     int qos;
 };
 
-class MQTTClient {
+struct PlotData
+{
+    std::vector<double> values;
+    std::vector<double> times;
+};
+
+class MQTTClient
+{
 
 public:
-MQTTClient();
-~MQTTClient();
+    MQTTClient();
+    ~MQTTClient();
 
-bool publish(const char *topic, const char *message, int qos = 0, bool retain = false);
-bool connect(const char* host, int port);
-void poll();    
-void draw();
-void draw_history_received();
-void draw_history_published();
-void draw_subscriptions();
-void draw_plot();
-void TakeData(const std::string &payload, std::vector<double> values, std::vector<double> times);
+    bool publish(const char *topic, const char *message, int qos = 0, bool retain = false);
+    bool connect(const char *host, int port);
+    void poll();
+    void draw();
+    void draw_history_received();
+    void draw_history_published();
+    void draw_subscriptions();
+    void draw_plot(const char *topic, const char *unit, PlotData &data);
+    void draw_temp() 
+    { 
+        draw_plot("home/temperature", "C", temp_data); 
+    }
+    void draw_press() 
+    { 
+        draw_plot("home/preassure", "hPa", press_data); 
+    }
+    void add_val(PlotData &data, const std::string &payload);
 
 private:
-
     // Broker ID
     std::string host = "localhost";
     int port = 1883;
 
     // Messages
     std::chrono::steady_clock::time_point last_attempt;
-    struct mosquitto* mosq = nullptr;
+    struct mosquitto *mosq = nullptr;
     bool connected = false;
     std::string last_topic;
     std::string last_message;
@@ -54,12 +70,10 @@ private:
     std::deque<Message_published> history_pub;
 
     // Plot temp
-    std::vector<double> temp_values;
-    std::vector<double> temp_times;
-    
+    PlotData temp_data;
+
     // Plot preass
-    std::vector<double> preass_values;
-    std::vector<double> preass_times;
+    PlotData press_data;
 
     // Publish
     char pub_message[256] = "";
@@ -76,6 +90,6 @@ private:
 
     // Callbacks
     static void on_disconnect(struct mosquitto *mosq, void *obj, int reason_code);
-    static void on_connect(struct mosquitto *mosq,  void *obj, int reason_code);
+    static void on_connect(struct mosquitto *mosq, void *obj, int reason_code);
     static void on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg);
 };
