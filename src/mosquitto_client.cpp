@@ -368,6 +368,11 @@ void MQTTClient::draw_deepsleep_intevral()
 {
     ImGui::SeparatorText("QoS and retain");
 
+    // Remember the settings from before this frame to detect a change
+    int previous_qos = qos_interval;
+    bool previous_retain = interval_retain;
+    int previous_interval = sleep_interval;
+
     ImGui::RadioButton("QoS 0##time", &qos_interval, 0);
     ImGui::SameLine();
     ImGui::RadioButton("QoS 1##time", &qos_interval, 1);
@@ -381,8 +386,6 @@ void MQTTClient::draw_deepsleep_intevral()
     ImGui::Spacing();
     ImGui::SeparatorText("Deep sleep interval");
 
-    int previous_interval = sleep_interval;
-
     int intervals[] = {60, 300, 600, 900, 1800, 3600};
     for (int i = 0; i < IM_ARRAYSIZE(intervals); i++)
     {
@@ -394,7 +397,10 @@ void MQTTClient::draw_deepsleep_intevral()
         ImGui::RadioButton(label, &sleep_interval, intervals[i]);
     }
 
-    if (sleep_interval != previous_interval)
+    // Send again if the user changed the interval, QoS or retain
+    if (sleep_interval != previous_interval ||
+        qos_interval != previous_qos ||
+        interval_retain != previous_retain)
     {
         char json[64];
         snprintf(json, sizeof(json), "{\"interval\": %d}", sleep_interval);
