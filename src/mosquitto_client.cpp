@@ -35,7 +35,31 @@ bool MQTTClient::publish(const char *topic, const char *message, int qos, bool r
     int rc = mosquitto_publish(mosq, nullptr, topic,
                                (int)strlen(message), message,
                                qos, retain);
-    return rc == MOSQ_ERR_SUCCESS;
+    if (rc != MOSQ_ERR_SUCCESS)
+    {
+        return false;
+    }
+
+    // Make a message for the logs
+    std::time_t now = std::time(nullptr);
+    std::tm *t = std::localtime(&now);
+    char time[16];
+    std::strftime(time, sizeof(time), "%H:%M:%S", t);
+
+    Message_published m;
+    m.time = time;
+    m.topic = topic;
+    m.payload = message;
+    m.retain = retain;
+    m.qos = qos;
+    history_pub.push_back(m);
+
+    if (history_pub.size() > 50)
+    {
+        history_pub.pop_front();
+    }
+
+    return true;
 }
 
 bool MQTTClient::connect(const char *h, int p)
@@ -228,25 +252,7 @@ void MQTTClient::draw()
             pub_status = "Topic is empty";
         else if (publish(pub_topic, pub_message, qos_pub, retain))
         {
-            // Make a message for the logs
-            std::time_t now = std::time(nullptr);
-            std::tm *t = std::localtime(&now);
-            char time[16];
-            std::strftime(time, sizeof(time), "%H:%M:%S", t);
-
-            Message_published m;
-            m.time = time;
-            m.topic = pub_topic;
-            m.payload = pub_message;
-            m.retain = retain;
-            m.qos = qos_pub;
-            history_pub.push_back(m);
-
-            if (history_pub.size() > 50)
-            {
-                history_pub.pop_front();
-            }
-
+            // publish() adds the message to the logs
             pub_status = "Sent";
         }
         else
@@ -260,6 +266,7 @@ void MQTTClient::draw()
     }
 }
 
+
 // LOG WINDOW RECEIVED
 void MQTTClient::draw_history_received()
 {
@@ -268,7 +275,7 @@ void MQTTClient::draw_history_received()
     {
         history_rec.clear();
     }
-    ImGui::BeginChild("Received messages", ImVec2(0, 740), ImGuiChildFlags_Borders | ImGuiChildFlags_AutoResizeX);
+    ImGui::BeginChild("Received messages", ImVec2(0, 740), ImGuiChildFlags_Borders, ImGuiWindowFlags_HorizontalScrollbar);
 
     for (const auto &m : history_rec)
     {
@@ -289,7 +296,7 @@ void MQTTClient::draw_history_published()
     {
         history_pub.clear();
     }
-    ImGui::BeginChild("Published messages", ImVec2(0, 740), ImGuiChildFlags_Borders | ImGuiChildFlags_AutoResizeX);
+    ImGui::BeginChild("Published messages", ImVec2(0, 740), ImGuiChildFlags_Borders, ImGuiWindowFlags_HorizontalScrollbar);
 
     for (const auto &m : history_pub)
     {

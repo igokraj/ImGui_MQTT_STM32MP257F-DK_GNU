@@ -180,7 +180,7 @@ int main(int, char **)
         ImGui::SetNextWindowSizeConstraints(ImVec2(350, 0), ImVec2(600, 600));
         // Set the position of the window at the start of the app
         ImGui::SetNextWindowPos(ImVec2(360, 30), ImGuiCond_Once);
-        ImGui::Begin("Choose your colour!", NULL, ImGuiWindowFlags_AlwaysAutoResize);
+        ImGui::Begin("Choose your colour!", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove);
         ImGui::ColorEdit3("Click here", (float *)&clear_color, ImGuiColorEditFlags_NoInputs); // Edit 3 floats representing a color
         ImGui::End();
 
@@ -204,7 +204,7 @@ int main(int, char **)
         ImGui::SetNextWindowSizeConstraints(ImVec2(300, 0), ImVec2(600, 600));
         // Set the position of the window at the start of the app
         ImGui::SetNextWindowPos(ImVec2(30, 30), ImGuiCond_Once);
-        ImGui::Begin("Time/date/day", NULL, ImGuiWindowFlags_AlwaysAutoResize);
+        ImGui::Begin("Time/date/day", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove);
         clk.draw();
         ImGui::End();
 
@@ -214,7 +214,7 @@ int main(int, char **)
 
         // Set the position of the window at the start of the app
         ImGui::SetNextWindowPos(ImVec2(825, 30), ImGuiCond_Once);
-        ImGui::Begin("MQTT", NULL, ImGuiWindowFlags_AlwaysAutoResize);
+        ImGui::Begin("MQTT", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove);
         mqtt.draw();
         ImGui::End();
 
@@ -223,11 +223,11 @@ int main(int, char **)
         // ********************** 5) LOGS RECEIVED - START **********************
 
         // First ImVec2 is for the min. size and the second one is for the max size
-        ImGui::SetNextWindowSizeConstraints(ImVec2(765, 0), ImVec2(FLT_MAX, FLT_MAX));
+        ImGui::SetNextWindowSizeConstraints(ImVec2(765, 0), ImVec2(765, FLT_MAX));
         // Set the position of the window at the start of the app
         ImGui::SetNextWindowPos(ImVec2(30, 1095), ImGuiCond_Once);
         ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
-        ImGui::Begin("LOGS RECEIVED", NULL, ImGuiWindowFlags_AlwaysAutoResize);
+        ImGui::Begin("LOGS RECEIVED", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove);
         mqtt.draw_history_received();
         ImGui::End();
 
@@ -236,11 +236,11 @@ int main(int, char **)
         // ********************** 6) LOGS PUBLISHED - START **********************
 
         // First ImVec2 is for the min. size and the second one is for the max size
-        ImGui::SetNextWindowSizeConstraints(ImVec2(860, 0), ImVec2(FLT_MAX, FLT_MAX));
+        ImGui::SetNextWindowSizeConstraints(ImVec2(860, 0), ImVec2(860, FLT_MAX));
         // Set the position of the window at the start of the app
         ImGui::SetNextWindowPos(ImVec2(825, 1095), ImGuiCond_Once);
         ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
-        ImGui::Begin("LOGS PUBLISHED", NULL, ImGuiWindowFlags_AlwaysAutoResize);
+        ImGui::Begin("LOGS PUBLISHED", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove);
         mqtt.draw_history_published();
         ImGui::End();
 
@@ -251,10 +251,10 @@ int main(int, char **)
         // First ImVec2 is for the min. size and the second one is for the max size
         ImGui::SetNextWindowSizeConstraints(ImVec2(600, 0), ImVec2(FLT_MAX, FLT_MAX));
         // Set the position of the window at the start of the app
-        ImGui::SetNextWindowPos(ImVec2(30, 220), ImGuiCond_Once);
+        ImGui::SetNextWindowPos(ImVec2(30, 500), ImGuiCond_Once);
         ImGui::SetNextWindowSize(ImVec2(765, 570), ImGuiCond_Once);
         ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
-        ImGui::Begin("SUBSCRIBED TOPICS");
+        ImGui::Begin("SUBSCRIBED TOPICS", NULL, ImGuiWindowFlags_NoMove);
         mqtt.draw_subscriptions();
         ImGui::End();
 
@@ -268,7 +268,7 @@ int main(int, char **)
         ImGui::SetNextWindowPos(ImVec2(1715, 30), ImGuiCond_Once);
         ImGui::SetNextWindowSize(ImVec2(1520, 620), ImGuiCond_Once);
         ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
-        ImGui::Begin("Temperature");
+        ImGui::Begin("Temperature", NULL, ImGuiWindowFlags_NoMove);
         mqtt.draw_temp();
         ImGui::End();
 
@@ -282,7 +282,7 @@ int main(int, char **)
         ImGui::SetNextWindowPos(ImVec2(1715, 680), ImGuiCond_Once);
         ImGui::SetNextWindowSize(ImVec2(1520, 620), ImGuiCond_Once);
         ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
-        ImGui::Begin("Pressure");
+        ImGui::Begin("Pressure", NULL, ImGuiWindowFlags_NoMove);
         mqtt.draw_press();
         ImGui::End();
 
@@ -296,7 +296,7 @@ int main(int, char **)
         ImGui::SetNextWindowPos(ImVec2(1715, 1330), ImGuiCond_Once);
         ImGui::SetNextWindowSize(ImVec2(1520, 620), ImGuiCond_Once);
         ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
-        ImGui::Begin("Humidity");
+        ImGui::Begin("Humidity", NULL, ImGuiWindowFlags_NoMove);
         mqtt.draw_hum();
         ImGui::End();
 
@@ -308,7 +308,7 @@ int main(int, char **)
         ImGui::SetNextWindowPos(ImVec2(825, 820), ImGuiCond_Once);
         ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
         // Window size fits its content
-        ImGui::Begin("Deep Sleep Intervals", NULL, ImGuiWindowFlags_AlwaysAutoResize);
+        ImGui::Begin("Deep Sleep Intervals", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove);
         mqtt.draw_deepsleep_intevral();
         ImGui::End();
 
