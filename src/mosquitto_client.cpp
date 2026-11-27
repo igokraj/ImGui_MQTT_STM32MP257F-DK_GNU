@@ -363,3 +363,18 @@ void MQTTClient::add_val(PlotData &data, const std::string &payload)
         data.times.erase(data.times.begin());
     }
 }
+
+void MQTTClient::draw_deepsleep_intevral()
+{
+    int intervals[] = {60, 300, 600, 900, 1800, 3600};
+    for (int i = 0; i < IM_ARRAYSIZE(intervals); i++)
+    {
+
+        char label[16];
+        snprintf(label, sizeof(label), "%d min", intervals[i] / 60);
+
+        ImGui::SameLine();
+        ImGui::Button(label);
+    }
+}
+

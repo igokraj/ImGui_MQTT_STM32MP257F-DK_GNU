@@ -42,6 +42,7 @@ public:
     void draw_history_received();
     void draw_history_published();
     void draw_subscriptions();
+    void draw_deepsleep_intevral();
     void draw_plot(const char *topic, const char *unit, PlotData &data);
     void draw_temp() 
     { 
@@ -94,6 +95,10 @@ private:
     char sub_input[128];
     bool retain = false;
     int qos_sub = 0;
+
+    // Deep Sleep Interval
+    int esp_interval = 60;
+    std::string time_status;
 
     // Callbacks
     static void on_disconnect(struct mosquitto *mosq, void *obj, int reason_code);

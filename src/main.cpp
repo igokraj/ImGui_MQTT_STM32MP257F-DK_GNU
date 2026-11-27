@@ -300,6 +300,20 @@ int main(int, char **)
 
         // ********************** 10) HUMIDITY PLOT - END **********************
 
+        // ********************** 11) DEEP SLEEP - START **********************
+
+        // First ImVec2 is for the min. size and the second one is for the max size
+        ImGui::SetNextWindowSizeConstraints(ImVec2(400, 250), ImVec2(FLT_MAX, FLT_MAX));
+        // Set the position of the window at the start of the app
+        ImGui::SetNextWindowPos(ImVec2(1355, 1065), ImGuiCond_Once);
+        ImGui::SetNextWindowSize(ImVec2(1180, 510), ImGuiCond_Once);
+        ImGui::SetNextWindowCollapsed(false, ImGuiCond_Once);
+        ImGui::Begin("Deep Sleep Intervals");
+        mqtt.draw_deepsleep_intevral();
+        ImGui::End();
+
+        // ********************** 11) DEEP SLEEP - END **********************
+
         // ********************** USER CODE END **********************
 
         // Rendering
