@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <ctime>
 #include <cstdlib>
+#include <implot.h>
 
 MQTTClient::MQTTClient()
 {
@@ -105,6 +106,8 @@ void MQTTClient::on_message(struct mosquitto *mosq, void *obj, const struct mosq
         self->history_rec.pop_front();
     }
 
+    // *********** TEMP PLOT ********************
+
     // Save temperature values for the plot
     if (m.topic == "home/temperature")
     {
@@ -116,8 +119,15 @@ void MQTTClient::on_message(struct mosquitto *mosq, void *obj, const struct mosq
             self->temp_values.push_back(value);
             if (self->temp_values.size() > 100)
                 self->temp_values.erase(self->temp_values.begin());
+
+            // Save time values for the plot
+            self->temp_times.push_back((double)std::time(nullptr));
+            if (self->temp_times.size() > 100)
+                self->temp_times.erase(self->temp_times.begin());
         }
     }
+
+    // ************** TEMP PLOT END *****************
 }
 
 void MQTTClient::draw()
@@ -330,6 +340,19 @@ void MQTTClient::draw_subscriptions()
 // TEMPERATURE PLOT
 void MQTTClient::draw_plot()
 {
-    ImGui::PlotLines("##temp", temp_values.data(), (int)temp_values.size(),
-                     0, nullptr, FLT_MAX, FLT_MAX, ImVec2(400, 150));
+    if (temp_values.empty())
+    {
+        ImGui::TextUnformatted("Waiting for data on home/temperature...");
+        return;
+    }
+
+    ImGui::Text("Current: %.2f C", temp_values.back());
+
+    if (ImPlot::BeginPlot("##temp", ImVec2(-1, -1), ImPlotFlags_NoLegend))
+    {
+        ImPlot::SetupAxes("Time", "Temperature [C]", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
+        ImPlot::SetupAxisScale(ImAxis_X1, ImPlotScale_Time);
+        ImPlot::PlotLine("home/temperature", temp_times.data(), temp_values.data(), (int)temp_values.size());
+        ImPlot::EndPlot();
+    }
 }

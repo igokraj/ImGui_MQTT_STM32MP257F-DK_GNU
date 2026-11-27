@@ -53,7 +53,8 @@ private:
     std::deque<Message_published> history_pub;
 
     // Plot
-    std::vector<float> temp_values;
+    std::vector<double> temp_values;
+    std::vector<double> temp_times;
 
     // Publish
     char pub_message[256] = "";
